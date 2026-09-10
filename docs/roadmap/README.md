@@ -1,6 +1,6 @@
-# trading-research-dashboard 项目路线图
+# quant-trading-workbench 项目路线图
 
-本文记录 Trading Dashboard 尚未完成的主要工作、实施顺序和验收边界。状态以当前代码和真实运行证据为准；workflow、脚本或 PR 的存在本身不等于生产 gate 已经发生。
+本文记录 Quant Trading Workbench 尚未完成的主要工作、实施顺序和验收边界。状态以当前代码和真实运行证据为准；workflow、脚本或 PR 的存在本身不等于生产 gate 已经发生。
 
 ## 当前状态总览
 

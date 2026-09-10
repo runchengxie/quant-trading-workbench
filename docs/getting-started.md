@@ -1,5 +1,7 @@
 # 新人上手
 
+本仓库是 `quant-trading-workbench`：用于市场观察、日内研究 probe、playbook、执行实验和研究快照交互。下面的命令仍然使用稳定的 `apps/dashboard/` 路径；其中 Dashboard 是 Workbench 的 Web 应用边界。
+
 ## 环境准备
 
 需要 Python 3.11 或更高版本、`uv`、Node.js 22 和 `pnpm` 11。在仓库根目录执行：
@@ -77,7 +79,7 @@ Python 行情服务。需要实时美股行情时，可以在构建环境配置�
 如果需要把项目交给朋友本地运行，使用根目录的安全打包脚本：
 
 ```bash
-uv run python scripts/package_share.py --output /tmp/trading-research-dashboard-share.zip
+uv run python scripts/package_share.py --output /tmp/quant-trading-workbench-share.zip
 ```
 
 压缩包包含完整项目源码、GitHub Actions workflow、Dashboard 静态 `data.json`/研究快照、`.env.example` 和 `SHARE-MANIFEST.json`，不带 `.env`、真实 Alpaca/Tushare key、原始缓存、`node_modules` 或构建产物。`market-data-platform` 和 `etf-minute-fetcher` 的原始数据不进入压缩包，manifest 会记录外部数据源及其环境变量。接收方复制 `.env.example` 为 `.env` 后，在自己的环境中填写 key；不要把真实 key 放进压缩包或前端 `VITE_*` 变量。
