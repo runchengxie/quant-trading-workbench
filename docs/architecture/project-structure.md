@@ -1,11 +1,11 @@
 # 项目结构说明
 
-当前仓库是 `trading-research-dashboard` 的集成 monorepo。Dashboard、Niu Men、`research-core` 和实时行情服务核心已经进入仓库。
+当前仓库是 `quant-trading-workbench` 的集成 monorepo。Workbench、Niu Men、`research-core` 和实时行情服务核心已经进入仓库。仓库内部继续保留 `apps/dashboard/` 作为 Web 应用边界，不因为产品改名而移动目录或重命名运行时包。
 
 ## 当前结构
 
 ```text
-trading-research-dashboard/
+quant-trading-workbench/
 ├── apps/
 │   └── dashboard/
 │       ├── src/trading_research/  # Dashboard Python 包

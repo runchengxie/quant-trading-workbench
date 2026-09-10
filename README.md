@@ -1,11 +1,15 @@
-# Trading Research Dashboard
+# Quant Trading Workbench
 
-这是一个用于研究和展示交易策略的项目，包含行情数据、策略回测、研究快照和 Web 看板。
+这是一个面向量化研究与交易判断的交互式 Workbench，包含市场观察、日内 research probe、intraday playbook、execution experiment、研究快照和纸面组合实验。它负责把现象、事件、标的和研究证据连接起来，帮助研究者继续追问一个结论在哪里成立、来自哪些样本以及如何沿时间变化。
+
+仓库属于 quant 系列，但不把日内规则自动当作 alpha 策略。Workbench 负责观察、实验和回放；通过明确假设、成本后结果、样本外验证和稳健性检查的研究候选，再进入 `quant-research` 的 canonical strategy layer。Web 应用仍位于 `apps/dashboard/`，这是刻意保留的稳定路径，不代表需要移动 monorepo 内部目录。
 
 ## 项目维护状态
 
-本仓库是统一维护主线，已整合 `wu-t0-trading-dashboard` 和
+本仓库是 `quant-trading-workbench` 的统一维护主线，已整合 `wu-t0-trading-dashboard` 和
 `niu-men-line-strategy` 的 Dashboard、策略研究与共享契约代码。后续功能开发、问题修复、发布和运行维护均以本仓库为准；两个旧仓库保留用于历史追溯和回滚，不再作为独立功能开发主线。
+
+Workbench 与日内研究对象的边界见 [Workbench 边界](docs/workbench-boundary.md)。
 
 ## 从哪里开始
 
@@ -67,7 +71,7 @@ Web Dashboard 继续优先使用静态快照；配置 `VITE_MARKET_DATA_URL` 后
 生成一份用于私下分享的安全源码包（包含完整项目源码、workflow、Dashboard 静态快照和 `SHARE-MANIFEST.json`，默认不包含 `.env`、真实 key、原始缓存或构建产物）：
 
 ```bash
-uv run python scripts/package_share.py --output /tmp/trading-research-dashboard-share.zip
+uv run python scripts/package_share.py --output /tmp/quant-trading-workbench-share.zip
 ```
 
 分享包不包含外部 `market-data-platform` 和 `etf-minute-fetcher` 的原始数据；`SHARE-MANIFEST.json` 会记录这两个外部数据源、对应环境变量和未打包状态。接收方可以直接使用包内的静态 `data.json` 和研究快照运行 Dashboard；如需重新抓取行情，再按文档配置外部数据目录或 yfinance/Alpaca provider。
