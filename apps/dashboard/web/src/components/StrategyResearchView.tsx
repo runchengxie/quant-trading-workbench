@@ -59,7 +59,7 @@ export default function StrategyResearchView({
   const selectedResult = results.find((result) => result.definition.id === activeTab);
 
   return (
-    <section className="strategy-research-view" aria-label="策略研究工作区">
+    <section className="strategy-research-view research-editorial" aria-label="策略研究工作区">
       <nav className="research-tabs" aria-label="策略研究子页面">
         {results.map((result) => (
           <button

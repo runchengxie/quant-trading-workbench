@@ -18,6 +18,14 @@
   --editorial-radius: 5px;
   --editorial-section-gap: 34px;
 
+  --research-paper: #f4f0e8;
+  --research-surface: #f8f5ef;
+  --research-accent: #b64d33;
+  --research-accent-soft: #ede5d9;
+  --research-heading-family: "Noto Serif SC", Georgia, serif;
+  --research-meta-family: "DM Mono", ui-monospace, monospace;
+  --research-rule: #d8d0c3;
+
   --bg: var(--editorial-paper);
   --card-bg: var(--editorial-surface-strong);
   --text: var(--editorial-ink);
@@ -46,6 +54,13 @@
   --editorial-blue: #66a8ff;
   --editorial-blue-soft: rgba(102, 168, 255, 0.1);
   --editorial-warning: #f2a94b;
+  --research-paper: #15191e;
+  --research-surface: #1b2128;
+  --research-accent: #e28a70;
+  --research-accent-soft: #2d2524;
+  --research-heading-family: "Noto Serif SC", Georgia, serif;
+  --research-meta-family: "DM Mono", ui-monospace, monospace;
+  --research-rule: #3b424a;
 
   --bg: var(--editorial-paper);
   --card-bg: var(--editorial-surface-strong);
