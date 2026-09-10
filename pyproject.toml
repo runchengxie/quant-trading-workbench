@@ -1,5 +1,5 @@
 [project]
-name = "trading-research-dashboard"
+name = "quant-trading-workbench"
 version = "0.0.0"
 description = "Trading research and dashboard integration monorepo"
 requires-python = ">=3.11"

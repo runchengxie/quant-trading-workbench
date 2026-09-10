@@ -28,7 +28,7 @@
 
 目标 GitHub 仓库名为 `quant-trading-workbench`，目标本地 checkout 目录为 `/home/richard/code/quant-trading-workbench`。在代码 PR 中先更新仓库内可发布的名称和文档；GitHub repository rename、remote URL 更新和最终本地目录迁移作为独立的运维步骤处理。
 
-仓库内的 `package.json` 根项目名称改为 `quant-trading-workbench`，因为它是项目元数据而不是运行时 Python 包。分享包输出示例和 manifest format 同步使用 `quant-trading-workbench`，但历史格式校验和已有消费方不在本次强制迁移范围内；如果已有代码对旧 format 有严格依赖，则保留兼容读取。
+仓库内的 `package.json` 和根 `pyproject.toml` 项目名称改为 `quant-trading-workbench`，因为它们是项目元数据而不是运行时 Python 包。分享包输出示例使用 `quant-trading-workbench`；`trading-research-dashboard.share.v2` manifest format 作为已有消费方的兼容标识继续保留，不在本次改名中重置 wire format。
 
 ### 文档定位
 
