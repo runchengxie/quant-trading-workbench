@@ -79,6 +79,7 @@ M1_FOUNDATION_TRACKED_FILES = frozenset(
         "tests/test_runtime_workflow.py",
         "tests/test_platform_publication_publisher.py",
         "tests/test_platform_publication_workflow.py",
+        "tests/test_workbench_identity.py",
         "scripts/test_agent_paper_workflow.py",
         "uv.lock",
     )
@@ -103,6 +104,7 @@ DOCUMENTATION_ALLOWED_FILES = frozenset(
         "docs/agent-paper-portfolio.md",
         "docs/README.md",
         "docs/getting-started.md",
+        "docs/workbench-boundary.md",
     )
 )
 
