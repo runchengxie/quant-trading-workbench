@@ -18,11 +18,12 @@ test('chart palettes provide restrained major and minor grid colors', () => {
 test('dark chart visuals separate the page grid from the chart surface', () => {
   const theme = read('theme.ts');
   const editorial = read('editorial.css');
+  const styles = read('styles.css');
 
   assert.match(theme, /gridColor:\s*'rgba\(155, 175, 195, 0\.13\)'/);
   assert.match(theme, /minorGridColor:\s*'rgba\(155, 175, 195, 0\.045\)'/);
-  assert.match(editorial, /--chart-surface:\s*#151b21/);
-  assert.match(editorial, /--editorial-grid:\s*rgba\(175, 190, 205, 0\.02\)/);
+  assert.match(styles, /--surface-secondary:\s*#151b23/);
+  assert.match(styles, /--chart-grid:\s*#252b33/);
 });
 
 test('dashboard exposes one-page market switching for CN, HK and US', () => {
