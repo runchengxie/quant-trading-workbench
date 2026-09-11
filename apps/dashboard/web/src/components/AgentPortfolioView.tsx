@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import ReactECharts from 'echarts-for-react/esm/core';
 import { echarts } from '../echarts';
 import { displayInstrument, loadAgentPortfolio, type AgentPortfolioLatest } from '../agentPortfolio';
+import { paletteFor, type ThemeMode } from '../theme';
 import { Button } from './ui/button';
 
 function formatUsd(value: number): string {
@@ -12,13 +13,14 @@ function formatPercent(value: number): string {
   return `${value >= 0 ? '+' : ''}${(value * 100).toFixed(2)}%`;
 }
 
-function PortfolioChart({ snapshot }: { snapshot: AgentPortfolioLatest }) {
+function PortfolioChart({ snapshot, theme }: { snapshot: AgentPortfolioLatest; theme: ThemeMode }) {
+  const palette = paletteFor(theme);
   const option = useMemo(() => ({
     animation: false,
     tooltip: { trigger: 'axis' },
     grid: { left: 48, right: 20, top: 20, bottom: 36 },
-    xAxis: { type: 'category', data: snapshot.history.map((point) => point.asOf) },
-    yAxis: { type: 'value', scale: true },
+    xAxis: { type: 'category', data: snapshot.history.map((point) => point.asOf), axisLine: { lineStyle: { color: palette.axisLineColor } }, axisLabel: { color: palette.axisLabelColor } },
+    yAxis: { type: 'value', scale: true, axisLine: { lineStyle: { color: palette.axisLineColor } }, axisLabel: { color: palette.axisLabelColor }, splitLine: { lineStyle: { color: palette.gridColor } } },
     series: [{
       name: 'NAV',
       type: 'line',
@@ -26,10 +28,10 @@ function PortfolioChart({ snapshot }: { snapshot: AgentPortfolioLatest }) {
       symbol: 'circle',
       symbolSize: 6,
       data: snapshot.history.map((point) => Number(point.nav.toFixed(6))),
-      lineStyle: { color: '#1267d6', width: 3 },
-      itemStyle: { color: '#1267d6' },
+      lineStyle: { color: palette.lineColor, width: 3 },
+      itemStyle: { color: palette.lineColor },
     }],
-  }), [snapshot.history]);
+  }), [palette, snapshot.history]);
 
   return <ReactECharts echarts={echarts} option={option} notMerge lazyUpdate style={{ width: '100%', height: 320 }} />;
 }
@@ -41,7 +43,7 @@ const PORTFOLIOS: ReadonlyArray<{ kind: PortfolioKind; title: string; path: stri
   { kind: 'stocks', title: '个股选股组合', path: 'agent/stocks/latest.json' },
 ];
 
-function PortfolioCard({ title, snapshot }: { title: string; snapshot: AgentPortfolioLatest }) {
+function PortfolioCard({ title, snapshot, theme }: { title: string; snapshot: AgentPortfolioLatest; theme: ThemeMode }) {
   return (
     <article className="agent-portfolio-card" aria-labelledby={`agent-${title}`}>
       <div className="section-heading">
@@ -61,7 +63,7 @@ function PortfolioCard({ title, snapshot }: { title: string; snapshot: AgentPort
       </div>
 
       <div className="agent-portfolio-grid">
-        <div className="agent-panel agent-chart-panel"><h4>净值曲线</h4><PortfolioChart snapshot={snapshot} /></div>
+        <div className="agent-panel agent-chart-panel"><h4>净值曲线</h4><PortfolioChart snapshot={snapshot} theme={theme} /></div>
         <div className="agent-panel"><h4>当前持仓</h4><dl className="agent-position-list">
           <div><dt>现金</dt><dd>{formatUsd(snapshot.portfolio.cash)}</dd></div>
           {snapshot.positions.map((position) => <div key={position.symbol}><dt>{displayInstrument(position.symbol)}</dt><dd>{position.shares} 股 · {formatPercent(position.weight)}</dd></div>)}
@@ -75,7 +77,7 @@ function PortfolioCard({ title, snapshot }: { title: string; snapshot: AgentPort
   );
 }
 
-export default function AgentPortfolioView() {
+export default function AgentPortfolioView({ theme }: { theme: ThemeMode }) {
   const [snapshots, setSnapshots] = useState<Partial<Record<PortfolioKind, AgentPortfolioLatest>>>({});
   const [error, setError] = useState<string | null>(null);
 
@@ -114,7 +116,7 @@ export default function AgentPortfolioView() {
         </div>
       </div>
       <div className="agent-portfolio-stack">
-        {PORTFOLIOS.map(({ kind, title }) => <PortfolioCard key={kind} title={title} snapshot={snapshots[kind]!} />)}
+        {PORTFOLIOS.map(({ kind, title }) => <PortfolioCard key={kind} title={title} snapshot={snapshots[kind]!} theme={theme} />)}
       </div>
     </section>
   );
