@@ -1,4 +1,6 @@
-# Market Research Editorial Layer Implementation Plan
+# Superseded: Market Research Editorial Layer Implementation Plan
+
+> This first-pass plan intentionally separated the research palette from the operational Workbench shell. It is superseded by [`2026-09-11-workbench-editorial-terminal.md`](./2026-09-11-workbench-editorial-terminal.md), which unifies the visual system while retaining research layout differences.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
