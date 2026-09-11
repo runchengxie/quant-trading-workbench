@@ -12,7 +12,7 @@ test('chart palettes use the editorial research axis and line colors', () => {
   assert.match(source, /axisLineColor: '#9ba3ab'/);
   assert.match(source, /axisLabelColor: '#5f6872'/);
   assert.match(source, /tooltipBg: '#232a33'/);
-  assert.match(source, /lineColor: '#1267d6'/);
+  assert.match(source, /lineColor: '#365f78'/);
   assert.match(source, /axisLineColor: '#66717d'/);
-  assert.match(source, /lineColor: '#66a8ff'/);
+  assert.match(source, /lineColor: '#8db2c7'/);
 });

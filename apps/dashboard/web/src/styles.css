@@ -1,36 +1,40 @@
 @import "tailwindcss";
 
 /* ============================================================
- * 设计 token（Calm Financial Intelligence + dark mode 全覆盖）
+ * 设计 token（Quiet Quant Workstation + dark mode 全覆盖）
  * 通过 :root / [data-theme="dark"] 切换主题。
  * 图表内部的硬编码颜色不走 CSS 变量，而是由 web/src/theme.ts
  * 暴露的 LIGHT/DARK_PALETTE 通过 React props 注入 ECharts。
  * ============================================================ */
 :root {
-  --surface-canvas: #f5f7fb;
-  --surface-primary: #ffffff;
-  --surface-secondary: #f8fafc;
+  --surface-canvas: #f3f5f6;
+  --surface-primary: #fafbfc;
+  --surface-secondary: #f6f8f9;
   --surface-elevated: #ffffff;
-  --text-primary: #1f2329;
-  --text-secondary: #444;
-  --text-muted: #748096;
-  --border-subtle: #eef1f5;
-  --border-default: #e1e6ef;
-  --border-strong: #c9d2df;
-  --accent-primary: #1890ff;
-  --accent-primary-muted: rgba(24, 144, 255, 0.08);
-  --focus-ring: #40a9ff;
-  --market-up: #ef232a;
-  --market-down: #14b143;
-  --state-success: #14b143;
+  --text-primary: #181c20;
+  --text-secondary: #4d5660;
+  --text-muted: #7c8793;
+  --border-subtle: #e7ebee;
+  --border-default: #d8dee4;
+  --border-strong: #b8c2ca;
+  --accent-primary: #365f78;
+  --accent-primary-muted: rgba(54, 95, 120, 0.1);
+  --focus-ring: #527e96;
+  --market-up: #b54747;
+  --market-down: #277552;
+  --state-success: #277552;
   --state-warning: #d97706;
   --state-danger: #cf1322;
-  --state-info: #2563eb;
-  --evidence-accent: #b96800;
-  --evidence-muted: rgba(185, 104, 0, 0.1);
-  --font-ui: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-  --font-research: 'Noto Serif SC', Georgia, serif;
+  --state-info: #527e96;
+  --semantic-positive: #277552;
+  --semantic-negative: #b54747;
+  --evidence-accent: #95683e;
+  --evidence-muted: rgba(149, 104, 62, 0.1);
+  --font-ui: 'Segoe UI Variable', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'Cascadia Mono', 'SFMono-Regular', Consolas, monospace;
+  --font-research: 'Songti SC', 'STSong', 'Noto Serif SC', Georgia, serif;
+  --radius-control: 5px;
+  --radius-panel: 5px;
   /* —— 基础色调：低噪声研究工作台 —— */
   --bg: var(--surface-canvas);
   --card-bg: var(--surface-primary);
@@ -42,15 +46,15 @@
   /* —— 图表可复用颜色 token（被 STOCK/INTRADAY 共用） —— */
   --up: var(--market-up);
   --down: var(--market-down);
-  --level-support: #2563eb;
-  --level-resistance: #7c3aed;
-  --level-key: #d97706;
-  --level-center: #9333ea;
-  --chart-axis: #a8b2c2;
+  --level-support: #527e96;
+  --level-resistance: #766b91;
+  --level-key: #95683e;
+  --level-center: #81759c;
+  --chart-axis: #9ba3ab;
   --chart-grid: #e8edf4;
   --chart-tooltip-bg: #6a7985;
-  --chart-line: #1890ff;
-  --chart-vwap: #fa8c16;
+  --chart-line: #365f78;
+  --chart-vwap: #95683e;
 
   /* —— 状态/工具色 —— */
   --error-bg: #fff2f0;
@@ -59,8 +63,8 @@
   --code-bg: rgba(0, 0, 0, 0.05);
 
   /* —— 影子 / 字号 —— */
-  --shadow: 0 1px 2px rgba(20, 32, 54, 0.04), 0 8px 24px rgba(20, 32, 54, 0.05);
-  --shadow-hover: 0 4px 10px rgba(20, 32, 54, 0.08), 0 14px 34px rgba(20, 32, 54, 0.08);
+  --shadow: none;
+  --shadow-hover: 0 0 0 1px var(--accent-primary-muted);
   --font-price: 30px;
   --font-card-title: 18px;
   --grid-columns: 12;
@@ -71,27 +75,29 @@
 
 /* —— dark mode —— A 股红绿仅做亮度提升，不改色相惯例 —— */
 [data-theme="dark"] {
-  --surface-canvas: #11151b;
-  --surface-primary: #191f28;
-  --surface-secondary: #151b23;
-  --surface-elevated: #202832;
-  --text-primary: #e6e8eb;
-  --text-secondary: #b0b3b8;
-  --text-muted: #8e99aa;
-  --border-subtle: #222b36;
-  --border-default: #2b3542;
-  --border-strong: #465466;
-  --accent-primary: #40a9ff;
-  --accent-primary-muted: rgba(64, 169, 255, 0.12);
-  --focus-ring: #66a8ff;
-  --market-up: #ef4444;
-  --market-down: #22c55e;
-  --state-success: #22c55e;
+  --surface-canvas: #101419;
+  --surface-primary: #161c22;
+  --surface-secondary: #13191f;
+  --surface-elevated: #20272e;
+  --text-primary: #e5e9ec;
+  --text-secondary: #b1bbc3;
+  --text-muted: #84919c;
+  --border-subtle: #202930;
+  --border-default: #2d3841;
+  --border-strong: #4a5863;
+  --accent-primary: #7197ae;
+  --accent-primary-muted: rgba(113, 151, 174, 0.14);
+  --focus-ring: #8db2c7;
+  --market-up: #e98484;
+  --market-down: #63b58d;
+  --state-success: #63b58d;
   --state-warning: #fbbf24;
   --state-danger: #fca5a5;
-  --state-info: #60a5fa;
-  --evidence-accent: #f2a94b;
-  --evidence-muted: rgba(242, 169, 75, 0.12);
+  --state-info: #8db2c7;
+  --semantic-positive: #63b58d;
+  --semantic-negative: #e98484;
+  --evidence-accent: #d1a276;
+  --evidence-muted: rgba(209, 162, 118, 0.14);
   --bg: var(--surface-canvas);
   --card-bg: var(--surface-primary);
   --text: var(--text-primary);
@@ -101,23 +107,23 @@
 
   --up: var(--market-up);
   --down: var(--market-down);
-  --level-support: #60a5fa;
-  --level-resistance: #c084fc;
-  --level-key: #fbbf24;
+  --level-support: #8db2c7;
+  --level-resistance: #b7a7cf;
+  --level-key: #d1a276;
   --level-center: #c4b5fd;
   --chart-axis: #54595f;
   --chart-grid: #252b33;
   --chart-tooltip-bg: #4a5058;
-  --chart-line: #40a9ff;
-  --chart-vwap: #fb923c;
+  --chart-line: #8db2c7;
+  --chart-vwap: #d1a276;
 
   --error-bg: #2c1c1c;
   --error-border: #5c2828;
   --error-text: var(--state-danger);
   --code-bg: rgba(255, 255, 255, 0.08);
 
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow: none;
+  --shadow-hover: 0 0 0 1px var(--accent-primary-muted);
 }
 
 /* ============================================================
@@ -278,7 +284,7 @@ code,
   margin: 0 0 28px;
   padding: 4px;
   border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: color-mix(in srgb, var(--card-bg) 84%, transparent);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
@@ -334,7 +340,7 @@ code,
 .agent-metric-card,
 .agent-panel {
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-panel);
   background: var(--card-bg);
   box-shadow: var(--shadow);
 }
@@ -488,7 +494,7 @@ code,
   min-width: 0;
   padding: 17px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: var(--card-bg);
   color: var(--text);
   cursor: pointer;
@@ -682,7 +688,7 @@ code,
   min-width: 0;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   background: var(--card-bg);
   box-shadow: var(--shadow);
 }
@@ -932,7 +938,7 @@ code,
 .stock-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-panel);
   padding: 20px;
   box-shadow: var(--shadow);
   transition: box-shadow 0.15s ease;

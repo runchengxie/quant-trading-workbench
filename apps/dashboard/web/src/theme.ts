@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { Market } from './types';
 
 /**
  * 主题切换模块。
@@ -18,7 +19,7 @@ export type ThemeMode = 'light' | 'dark';
 export type ThemeChoice = ThemeMode | 'system';
 
 export interface ChartPalette {
-  /** 涨色 / 跌色（A 股惯例：红涨绿跌）。 */
+  /** 涨色 / 跌色；颜色方向由 market 决定。 */
   up: string;
   down: string;
   /** K 线标记线：聚类支撑 / 阻力 / 关键价 / 中枢。 */
@@ -42,36 +43,36 @@ export interface ChartPalette {
 }
 
 export const LIGHT_PALETTE: ChartPalette = {
-  up: '#ef232a',
-  down: '#14b143',
-  levelSupport: '#2563eb',
-  levelResistance: '#6d5bd0',
-  levelKey: '#b96800',
-  levelCenter: '#7257a8',
+  up: '#b54747',
+  down: '#277552',
+  levelSupport: '#527e96',
+  levelResistance: '#766b91',
+  levelKey: '#95683e',
+  levelCenter: '#81759c',
   axisLineColor: '#9ba3ab',
   axisLabelColor: '#5f6872',
   gridColor: '#e1e6ec',
   minorGridColor: '#f0f2f5',
   tooltipBg: '#232a33',
-  lineColor: '#1267d6',
-  vwapColor: '#c77612',
+  lineColor: '#365f78',
+  vwapColor: '#95683e',
   titleColor: '#3e4752',
 };
 
 export const DARK_PALETTE: ChartPalette = {
-  up: '#ef4444',
-  down: '#22c55e',
-  levelSupport: '#66a8ff',
-  levelResistance: '#b8a1ff',
-  levelKey: '#f2a94b',
+  up: '#e98484',
+  down: '#63b58d',
+  levelSupport: '#8db2c7',
+  levelResistance: '#b7a7cf',
+  levelKey: '#d1a276',
   levelCenter: '#c2b4df',
   axisLineColor: '#66717d',
   axisLabelColor: '#aab2bc',
   gridColor: 'rgba(155, 175, 195, 0.13)',
   minorGridColor: 'rgba(155, 175, 195, 0.045)',
   tooltipBg: '#080b0f',
-  lineColor: '#66a8ff',
-  vwapColor: '#f2a94b',
+  lineColor: '#8db2c7',
+  vwapColor: '#d1a276',
   titleColor: '#c4cad0',
 };
 
@@ -124,6 +125,8 @@ export function useResolvedTheme(): ResolvedTheme {
   return { choice, resolved, setChoice };
 }
 
-export function paletteFor(mode: ThemeMode): ChartPalette {
-  return mode === 'dark' ? DARK_PALETTE : LIGHT_PALETTE;
+export function paletteFor(mode: ThemeMode, market?: Market): ChartPalette {
+  const palette = mode === 'dark' ? DARK_PALETTE : LIGHT_PALETTE;
+  if (!market || market === 'CN') return palette;
+  return { ...palette, up: palette.down, down: palette.up };
 }

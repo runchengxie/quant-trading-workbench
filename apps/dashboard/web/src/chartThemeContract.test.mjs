@@ -9,8 +9,8 @@ const agent = readFileSync(new URL('./components/AgentPortfolioView.tsx', import
 
 test('all chart consumers use the theme palette contract', () => {
   assert.match(theme, /export function paletteFor/);
-  assert.match(stock, /paletteFor\(theme\)/);
-  assert.match(intraday, /paletteFor\(theme\)/);
+  assert.match(stock, /paletteFor\(theme, /);
+  assert.match(intraday, /paletteFor\(theme, /);
   assert.match(agent, /paletteFor\(theme\)/);
   assert.doesNotMatch(agent, /#[0-9a-fA-F]{6}/);
 });

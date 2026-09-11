@@ -21,10 +21,6 @@ html {
 body {
   min-height: 100vh;
   background-color: var(--surface-canvas);
-  background-image:
-    linear-gradient(to right, var(--chart-grid) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--chart-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums lining-nums;
 }
@@ -43,7 +39,7 @@ body {
 
 .page-header h1 {
   max-width: 760px;
-  font-size: clamp(30px, 4vw, 46px);
+  font-size: clamp(26px, 3vw, 32px);
   font-weight: 720;
   line-height: 1.04;
   letter-spacing: -0.045em;
@@ -92,7 +88,7 @@ body {
   border-radius: 0;
   background: color-mix(in srgb, var(--surface-canvas) 94%, transparent);
   box-shadow: none;
-  backdrop-filter: blur(14px);
+  backdrop-filter: none;
 }
 
 .section-nav-button {
@@ -173,11 +169,36 @@ body {
 .market-switcher-button {
   padding: 5px 9px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-muted);
   font-size: 11px;
   cursor: pointer;
+}
+
+.market-switcher-button,
+.research-tab,
+.research-quality,
+.research-freshness,
+.state-badge,
+.kpi-chip {
+  border-radius: var(--radius-control);
+}
+
+/* The research mode changes reading rhythm, not the product's visual identity. */
+.research-editorial .agent-metric-card,
+.research-editorial .agent-panel,
+.research-editorial .instrument-overview-card,
+.research-editorial .workspace-panel,
+.research-editorial .research-kpi,
+.research-editorial .research-card {
+  border-radius: var(--radius-panel);
+  box-shadow: none;
+}
+
+.research-editorial .section-heading h2,
+.research-editorial .workspace-header h2 {
+  font-size: clamp(24px, 3vw, 30px);
 }
 
 .market-switcher-button span {
