@@ -7,18 +7,41 @@
  * 暴露的 LIGHT/DARK_PALETTE 通过 React props 注入 ECharts。
  * ============================================================ */
 :root {
-  /* —— 基础色调：低噪声研究工作台 —— */
-  --bg: #f5f7fb;
-  --card-bg: #ffffff;
-  --text: #1f2329;
+  --surface-canvas: #f5f7fb;
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-elevated: #ffffff;
+  --text-primary: #1f2329;
   --text-secondary: #444;
-  --muted: #748096;
-  --border: #e1e6ef;
-  --accent: #1890ff;
+  --text-muted: #748096;
+  --border-subtle: #eef1f5;
+  --border-default: #e1e6ef;
+  --border-strong: #c9d2df;
+  --accent-primary: #1890ff;
+  --accent-primary-muted: rgba(24, 144, 255, 0.08);
+  --focus-ring: #40a9ff;
+  --market-up: #ef232a;
+  --market-down: #14b143;
+  --state-success: #14b143;
+  --state-warning: #d97706;
+  --state-danger: #cf1322;
+  --state-info: #2563eb;
+  --evidence-accent: #b96800;
+  --evidence-muted: rgba(185, 104, 0, 0.1);
+  --font-ui: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  --font-research: 'Noto Serif SC', Georgia, serif;
+  /* —— 基础色调：低噪声研究工作台 —— */
+  --bg: var(--surface-canvas);
+  --card-bg: var(--surface-primary);
+  --text: var(--text-primary);
+  --muted: var(--text-muted);
+  --border: var(--border-default);
+  --accent: var(--accent-primary);
 
   /* —— 图表可复用颜色 token（被 STOCK/INTRADAY 共用） —— */
-  --up: #ef232a;
-  --down: #14b143;
+  --up: var(--market-up);
+  --down: var(--market-down);
   --level-support: #2563eb;
   --level-resistance: #7c3aed;
   --level-key: #d97706;
@@ -32,7 +55,7 @@
   /* —— 状态/工具色 —— */
   --error-bg: #fff2f0;
   --error-border: #ffccc7;
-  --error-text: #cf1322;
+  --error-text: var(--state-danger);
   --code-bg: rgba(0, 0, 0, 0.05);
 
   /* —— 影子 / 字号 —— */
@@ -48,16 +71,36 @@
 
 /* —— dark mode —— A 股红绿仅做亮度提升，不改色相惯例 —— */
 [data-theme="dark"] {
-  --bg: #11151b;
-  --card-bg: #191f28;
-  --text: #e6e8eb;
+  --surface-canvas: #11151b;
+  --surface-primary: #191f28;
+  --surface-secondary: #151b23;
+  --surface-elevated: #202832;
+  --text-primary: #e6e8eb;
   --text-secondary: #b0b3b8;
-  --muted: #8e99aa;
-  --border: #2b3542;
-  --accent: #40a9ff;
+  --text-muted: #8e99aa;
+  --border-subtle: #222b36;
+  --border-default: #2b3542;
+  --border-strong: #465466;
+  --accent-primary: #40a9ff;
+  --accent-primary-muted: rgba(64, 169, 255, 0.12);
+  --focus-ring: #66a8ff;
+  --market-up: #ef4444;
+  --market-down: #22c55e;
+  --state-success: #22c55e;
+  --state-warning: #fbbf24;
+  --state-danger: #fca5a5;
+  --state-info: #60a5fa;
+  --evidence-accent: #f2a94b;
+  --evidence-muted: rgba(242, 169, 75, 0.12);
+  --bg: var(--surface-canvas);
+  --card-bg: var(--surface-primary);
+  --text: var(--text-primary);
+  --muted: var(--text-muted);
+  --border: var(--border-default);
+  --accent: var(--accent-primary);
 
-  --up: #ef4444;
-  --down: #22c55e;
+  --up: var(--market-up);
+  --down: var(--market-down);
   --level-support: #60a5fa;
   --level-resistance: #c084fc;
   --level-key: #fbbf24;
@@ -70,7 +113,7 @@
 
   --error-bg: #2c1c1c;
   --error-border: #5c2828;
-  --error-text: #fca5a5;
+  --error-text: var(--state-danger);
   --code-bg: rgba(255, 255, 255, 0.08);
 
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -93,11 +136,30 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
-    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   line-height: 1.6;
   transition: background 0.2s ease, color 0.2s ease;
+}
+
+code,
+.data-status,
+.state-badge,
+.instrument-code,
+.market-switcher-label,
+.chart-cli-hint,
+.research-metadata {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.price,
+.metric-value,
+.instrument-price,
+.workspace-price-summary,
+.agent-metric-card strong,
+.research-kpi > strong {
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .container {
