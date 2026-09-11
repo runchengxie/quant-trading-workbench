@@ -1,23 +1,25 @@
 import { useMemo, useState } from 'react';
 import ReactECharts from 'echarts-for-react/esm/core';
 import type { EChartsOption, EChartsType } from 'echarts';
-import type { StockData } from '../types';
+import type { Market, StockData } from '../types';
 import { paletteFor, type ThemeMode } from '../theme';
 import { echarts } from '../echarts';
 import { downloadChartImage } from '../chartExport';
 
 export default function IntradayChart({
   stock,
+  market,
   theme,
 }: {
   stock: StockData;
+  market?: Market;
   theme: ThemeMode;
 }) {
   const [chart, setChart] = useState<EChartsType | null>(null);
   const option = useMemo<EChartsOption | null>(() => {
     if (!stock.intraday || stock.intraday.length === 0) return null;
 
-    const palette = paletteFor(theme);
+    const palette = paletteFor(theme, market ?? stock.market);
     const times = stock.intraday.map((d) => d.time.slice(11)); // 仅显示 HH:MM:SS
     const prices = stock.intraday.map((d) => d.price);
     const vwap = stock.indicators.vwap;

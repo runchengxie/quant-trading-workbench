@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import ReactECharts from 'echarts-for-react/esm/core';
 import type { EChartsOption, EChartsType } from 'echarts';
-import type { StockData, LevelType } from '../types';
+import type { Market, StockData, LevelType } from '../types';
 import { paletteFor, type ThemeMode } from '../theme';
 import { echarts } from '../echarts';
 import { visibleLevels } from '../priceLevels.ts';
@@ -9,16 +9,18 @@ import { downloadChartImage } from '../chartExport';
 
 export default function StockChart({
   stock,
+  market,
   theme,
 }: {
   stock: StockData;
+  market?: Market;
   theme: ThemeMode;
 }) {
   const [showAllLevels, setShowAllLevels] = useState(false);
   const [chart, setChart] = useState<EChartsType | null>(null);
 
   const option = useMemo<EChartsOption>(() => {
-    const palette = paletteFor(theme);
+    const palette = paletteFor(theme, market ?? stock.market);
 
     const levelColor: Record<LevelType, string> = {
       support: palette.levelSupport,

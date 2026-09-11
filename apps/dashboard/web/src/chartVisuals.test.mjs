@@ -22,7 +22,7 @@ test('dark chart visuals separate the page grid from the chart surface', () => {
 
   assert.match(theme, /gridColor:\s*'rgba\(155, 175, 195, 0\.13\)'/);
   assert.match(theme, /minorGridColor:\s*'rgba\(155, 175, 195, 0\.045\)'/);
-  assert.match(styles, /--surface-secondary:\s*#151b23/);
+  assert.match(styles, /--surface-secondary:\s*#13191f/);
   assert.match(styles, /--chart-grid:\s*#252b33/);
 });
 

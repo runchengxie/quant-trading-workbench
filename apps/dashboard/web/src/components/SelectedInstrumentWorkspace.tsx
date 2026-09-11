@@ -9,6 +9,7 @@ import type { ConditionalResearchSnapshot } from '../contextualResearch.ts';
 import { distancePercent, formatDistancePercent } from '../priceLevels.ts';
 import { currentPrice, isUsInstrument, liveStatusLabel } from '../liveQuote.ts';
 import { primaryIndicatorRows } from '../research/primaryIndicators.ts';
+import { marketOf } from '../market.ts';
 
 const LEVEL_LABELS: Record<LevelType, string> = {
   support: '支撑',
@@ -68,7 +69,7 @@ export default function SelectedInstrumentWorkspace({
               </div>
               <span className="panel-hint">可拖动时间轴查看历史区间</span>
             </div>
-            <StockChart stock={stock} theme={theme} />
+            <StockChart stock={stock} market={marketOf(stock)} theme={theme} />
           </section>
 
           <section className="workspace-panel intraday-panel" aria-labelledby="intraday-chart-title">
@@ -79,7 +80,7 @@ export default function SelectedInstrumentWorkspace({
               </div>
             </div>
             {stock.intraday && stock.intraday.length > 0 ? (
-              <IntradayChart stock={stock} theme={theme} />
+              <IntradayChart stock={stock} market={marketOf(stock)} theme={theme} />
             ) : (
               <p className="empty-panel">暂无可用分时数据。</p>
             )}

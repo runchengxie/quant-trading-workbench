@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { loadDashboard, loadStrategySnapshot, type StrategyLoadResult } from './api.ts';
 import { applyLiveQuote, buildLiveStreamUrl, isUsInstrument } from './liveQuote.ts';
+import { marketOf } from './market.ts';
 import {
   fetchMarketDataHealth,
   marketDataServiceStatusLabel,
   type MarketDataServiceStatus,
 } from './marketDataApi.ts';
-import type { DashboardData, LiveQuote, Market, StockData } from './types.ts';
+import type { DashboardData, LiveQuote, Market } from './types.ts';
 import InstrumentOverviewCard from './components/InstrumentOverviewCard';
 import StrategyResearchView from './components/StrategyResearchView';
 import SelectedInstrumentWorkspace from './components/SelectedInstrumentWorkspace';
@@ -37,15 +38,11 @@ const MARKET_FILTERS: { id: MarketFilter; label: string }[] = [
   { id: 'US', label: '美股' },
 ];
 
-const PRIMARY_NAV_ITEMS: { id: 'agent' | 'analysis'; label: string }[] = [
-  { id: 'agent', label: 'Agent 交易' },
-  { id: 'analysis', label: '分析看板' },
-];
-
-const ANALYSIS_NAV_ITEMS: { id: ViewId; label: string }[] = [
-  { id: 'overview', label: '盘前概览' },
-  { id: 'workspace', label: '日内工作台' },
-  { id: 'research', label: '策略研究' },
+const NAV_ITEMS: { id: ViewId; label: string }[] = [
+  { id: 'overview', label: 'Monitor · 盘前概览' },
+  { id: 'workspace', label: 'Workspace · 日内工作台' },
+  { id: 'research', label: 'Research · 策略研究' },
+  { id: 'agent', label: 'Agent · 纸面交易' },
 ];
 
 function isLiveQuote(value: unknown): value is LiveQuote {
@@ -60,13 +57,6 @@ function isLiveQuote(value: unknown): value is LiveQuote {
     (quote.status === 'live' || quote.status === 'delayed') &&
     (quote.freshness === 'current' || quote.freshness === 'stale' || quote.freshness === 'unknown')
   );
-}
-
-function marketOf(stock: StockData): Market {
-  if (stock.market) return stock.market;
-  if (isUsInstrument(stock)) return 'US';
-  if (/^(?:hk\d+|\d+\.hk)$/i.test(stock.code)) return 'HK';
-  return 'CN';
 }
 
 export default function App() {
@@ -250,9 +240,9 @@ export default function App() {
     <div className="container">
       <header className="page-header">
         <div>
-          <p className="brand-kicker">TRADING DASHBOARD</p>
-          <h1>Trading Dashboard</h1>
-          <p className="subtitle">行情研究与日内工作台 · 行情数据日期：{data.generatedAt}</p>
+          <p className="brand-kicker">QUANT TRADING WORKBENCH</p>
+          <h1>Quant Trading Workbench</h1>
+          <p className="subtitle">市场观察、研究验证与日内实验 · 行情数据日期：{data.generatedAt}</p>
         </div>
         <Button
           variant="ghost"
@@ -273,35 +263,19 @@ export default function App() {
         <span><b>行情状态</b>{serviceStatusLabel}</span>
       </div>
 
-          <nav className="section-nav" aria-label="仪表盘主分区">
-            {PRIMARY_NAV_ITEMS.map((item) => (
+          <nav className="section-nav" aria-label="Workbench 主分区">
+            {NAV_ITEMS.map((item) => (
               <button
                 type="button"
-                className={`section-nav-button${(item.id === 'agent' ? activeView === 'agent' : activeView !== 'agent') ? ' active' : ''}`}
-                aria-current={(item.id === 'agent' ? activeView === 'agent' : activeView !== 'agent') ? 'page' : undefined}
+                className={`section-nav-button${activeView === item.id ? ' active' : ''}`}
+                aria-current={activeView === item.id ? 'page' : undefined}
                 key={item.id}
-                onClick={() => setActiveView(item.id === 'agent' ? 'agent' : 'overview')}
+                onClick={() => setActiveView(item.id)}
               >
                 {item.label}
               </button>
             ))}
           </nav>
-
-          {activeView !== 'agent' && (
-            <nav className="section-nav section-subnav" aria-label="分析看板分区">
-              {ANALYSIS_NAV_ITEMS.map((item) => (
-                <button
-                  type="button"
-                  className={`section-nav-button${activeView === item.id ? ' active' : ''}`}
-                  aria-current={activeView === item.id ? 'page' : undefined}
-                  key={item.id}
-                  onClick={() => setActiveView(item.id)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-          )}
 
       <main>
         {activeView === 'overview' && (
@@ -402,7 +376,7 @@ export default function App() {
       </main>
 
       <footer className="page-footer">
-        行情来源：akshare / tushare / Alpaca（可选实时） · Trading Dashboard · 仅供研究，不构成投资建议
+        行情来源：akshare / tushare / Alpaca（可选实时） · Quant Trading Workbench · 仅供研究，不构成投资建议
       </footer>
     </div>
   );

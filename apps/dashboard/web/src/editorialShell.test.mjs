@@ -15,6 +15,6 @@ test('Dashboard loads the editorial research shell after the base stylesheet', (
 test('Dashboard opens on the Agent portfolio experiment', () => {
   const source = readFileSync(new URL('./App.tsx', import.meta.url), 'utf8');
   assert.match(source, /useState<ViewId>\('agent'\)/);
-  assert.match(source, /label: 'Agent 交易'/);
-  assert.match(source, /label: '分析看板'/);
+  assert.match(source, /label: 'Agent · 纸面交易'/);
+  assert.match(source, /label: 'Monitor · 盘前概览'/);
 });
