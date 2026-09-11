@@ -168,6 +168,37 @@ code,
   padding: 24px 20px 48px;
 }
 
+.workbench-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: -8px 0 24px;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.workbench-context span {
+  display: inline-flex;
+  gap: 8px;
+  margin-right: 16px;
+  padding: 9px 16px 9px 0;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.workbench-context span:last-child {
+  border-right: 0;
+}
+
+.workbench-context b {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
 /* ============================================================
  * 顶栏 + 主题切换按钮
  * ============================================================ */

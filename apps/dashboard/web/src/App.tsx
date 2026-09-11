@@ -266,6 +266,13 @@ export default function App() {
         </Button>
       </header>
 
+      <div className="workbench-context" aria-label="当前工作上下文">
+        <span><b>市场</b>{MARKET_FILTERS.find((item) => item.id === activeMarket)?.label ?? '全部市场'}</span>
+        <span><b>标的</b>{selectedStock?.code ?? '未选择'}</span>
+        <span><b>数据日期</b>{data.generatedAt || '未提供'}</span>
+        <span><b>行情状态</b>{serviceStatusLabel}</span>
+      </div>
+
           <nav className="section-nav" aria-label="仪表盘主分区">
             {PRIMARY_NAV_ITEMS.map((item) => (
               <button
@@ -391,7 +398,7 @@ export default function App() {
           />
         )}
 
-        {activeView === 'agent' && <AgentPortfolioView />}
+        {activeView === 'agent' && <AgentPortfolioView theme={resolved} />}
       </main>
 
       <footer className="page-footer">
