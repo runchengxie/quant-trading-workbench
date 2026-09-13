@@ -180,8 +180,8 @@ class GLMModelClient:
             content = response["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
             raise ValueError("GLM API response has an unsupported shape") from exc
-        content = _normalise_content(content)
         try:
+            content = _normalise_content(content)
             decision = parse_model_response(
                 content, symbols, provider=self.provider, model=self.model
             )
