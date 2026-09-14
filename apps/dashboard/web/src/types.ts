@@ -93,6 +93,7 @@ export interface DashboardData {
   stocks: StockData[];
   contextualResearch?: unknown;
   conditionalResearch?: unknown;
+  stateProbe?: unknown;
 }
 
 export interface ResearchSourceAssets {

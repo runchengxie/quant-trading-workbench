@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://quant-trading-workbench.dev/schemas/state-probe.v1.schema.json",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "probe", "current", "events", "outcomes", "quality", "provenance"],
+  "properties": {
+    "schemaVersion": {"const": "trading_research.state_probe.v1"},
+    "generatedAt": {"type": "string", "minLength": 1},
+    "probe": {
+      "type": "object",
+      "required": ["id", "featureId", "shortWindow", "longWindow", "thresholds", "horizons", "episodeMinFalseDays"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "featureId": {"type": "string", "minLength": 1},
+        "shortWindow": {"type": "integer", "minimum": 1},
+        "longWindow": {"type": "integer", "minimum": 1},
+        "thresholds": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "number"}},
+        "horizons": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[1-9][0-9]*d$"}},
+        "episodeMinFalseDays": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "current": {"$ref": "#/$defs/event"},
+    "events": {"type": "array", "items": {"$ref": "#/$defs/event"}},
+    "outcomes": {"type": "array", "items": {"$ref": "#/$defs/outcome"}},
+    "quality": {
+      "type": "object",
+      "required": ["status", "warnings"],
+      "properties": {"status": {"enum": ["pass", "warning"]}, "warnings": {"type": "array", "items": {"type": "string"}}},
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source", "definitionVersion"],
+      "properties": {"source": {"type": "string", "minLength": 1}, "definitionVersion": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": ["date", "value", "percentile", "zScore", "slope", "state", "condition"],
+      "properties": {
+        "date": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+        "value": {"type": ["number", "null"]},
+        "percentile": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "zScore": {"type": ["number", "null"]},
+        "slope": {"type": ["number", "null"]},
+        "state": {"type": "string", "minLength": 1},
+        "condition": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "outcome": {
+      "type": "object",
+      "required": ["horizon", "sampleCount", "eligibleCount", "censoredCount", "coverage", "episodeCount", "winRate", "meanReturn", "medianReturn", "baselineMeanReturn", "meanExcessReturn", "meanMfe", "meanMae", "averageCapitalOccupancy", "peakCapitalOccupancy"],
+      "properties": {
+        "horizon": {"type": "string", "pattern": "^[1-9][0-9]*d$"},
+        "sampleCount": {"type": "integer", "minimum": 0},
+        "eligibleCount": {"type": "integer", "minimum": 0},
+        "censoredCount": {"type": "integer", "minimum": 0},
+        "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "episodeCount": {"type": "integer", "minimum": 0},
+        "winRate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "meanReturn": {"type": ["number", "null"]},
+        "medianReturn": {"type": ["number", "null"]},
+        "baselineMeanReturn": {"type": ["number", "null"]},
+        "meanExcessReturn": {"type": ["number", "null"]},
+        "meanMfe": {"type": ["number", "null"]},
+        "meanMae": {"type": ["number", "null"]},
+        "averageCapitalOccupancy": {"type": ["number", "null"], "minimum": 0},
+        "peakCapitalOccupancy": {"type": ["number", "null"], "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

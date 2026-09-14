@@ -80,6 +80,7 @@ M1_FOUNDATION_TRACKED_FILES = frozenset(
         "tests/test_platform_publication_publisher.py",
         "tests/test_platform_publication_workflow.py",
         "tests/test_workbench_identity.py",
+        "tests/test_state_probe_integration.py",
         "scripts/test_agent_paper_workflow.py",
         "uv.lock",
     )
@@ -195,6 +196,7 @@ DASHBOARD_ALLOWED_FILES = frozenset(
         "apps/dashboard/web/public/agent/decisions.json",
         "apps/dashboard/web/public/rbreaker-research.json",
         "apps/dashboard/web/public/ict-liquidity-reclaim-research.json",
+        "apps/dashboard/web/public/state-probe.example.json",
         "apps/dashboard/web/public/research.json",
         "apps/dashboard/web/tsconfig.json",
         "apps/dashboard/web/vite.config.ts",

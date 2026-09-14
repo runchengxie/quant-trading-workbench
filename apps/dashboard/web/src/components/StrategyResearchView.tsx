@@ -3,6 +3,8 @@ import type { ThemeMode } from '../theme';
 import PlatformEvidencePanel from './PlatformEvidencePanel';
 import ResearchPanel from './ResearchPanel';
 import StrategyComparisonPanel from './StrategyComparisonPanel';
+import StateProbePanel from './StateProbePanel';
+import type { StateProbeSnapshot } from '../stateProbe.ts';
 
 type ResearchTab = string;
 
@@ -12,6 +14,7 @@ interface StrategyResearchViewProps {
   activeTab: ResearchTab;
   onTabChange: (tab: ResearchTab) => void;
   theme: ThemeMode;
+  stateProbe?: StateProbeSnapshot | null;
 }
 
 function StrategyUnavailable({ result }: { result: StrategyLoadResult }) {
@@ -45,6 +48,7 @@ export default function StrategyResearchView({
   activeTab,
   onTabChange,
   theme,
+  stateProbe = null,
 }: StrategyResearchViewProps) {
   if (!loaded) {
     return (
@@ -60,6 +64,7 @@ export default function StrategyResearchView({
 
   return (
     <section className="strategy-research-view research-editorial" aria-label="策略研究工作区">
+      {stateProbe && <StateProbePanel snapshot={stateProbe} />}
       <nav className="research-tabs" aria-label="策略研究子页面">
         {results.map((result) => (
           <button

@@ -18,6 +18,7 @@ import {
   parseContextualResearch,
 } from './contextualResearch.ts';
 import { STRATEGY_DEFINITIONS } from './research/strategyRegistry.ts';
+import { parseStateProbe } from './stateProbe.ts';
 import { useResolvedTheme, type ThemeChoice } from './theme';
 
 /** 切换顺序：light → dark → system → light ... */
@@ -234,6 +235,7 @@ export default function App() {
     data.contextualResearch,
   );
   const conditionalResearch = parseConditionalResearch(data.conditionalResearch);
+  const stateProbe = parseStateProbe(data.stateProbe);
   const serviceStatusLabel = marketDataServiceStatusLabel(marketDataServiceStatus);
 
   return (
@@ -369,6 +371,7 @@ export default function App() {
             activeTab={activeResearchTab}
             onTabChange={setActiveResearchTab}
             theme={resolved}
+            stateProbe={stateProbe}
           />
         )}
 

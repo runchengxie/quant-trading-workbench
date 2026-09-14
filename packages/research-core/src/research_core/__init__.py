@@ -37,6 +37,12 @@ from research_core.provenance import (
     validate_provenance_consistency,
 )
 from research_core.snapshot import SCHEMA_VERSION, load_snapshot, validate_snapshot
+from research_core.state_probe import (
+    STATE_PROBE_VERSION,
+    build_state_probe,
+    load_state_probe,
+    validate_state_probe,
+)
 from research_core.strategy_snapshot import (
     STRATEGY_SNAPSHOT_VERSION,
     load_strategy_snapshot,
@@ -57,12 +63,15 @@ __all__ = [
     "RESEARCH_EXPERIMENT_VERSION",
     "SCHEMA_VERSION",
     "SETUP_EVENT_VERSION",
+    "STATE_PROBE_VERSION",
     "STRATEGY_SNAPSHOT_VERSION",
     "adapt_niu_men_v2",
+    "build_state_probe",
     "load_agent_portfolio",
     "load_contextual_snapshot",
     "load_snapshot",
     "load_strategy_snapshot",
+    "load_state_probe",
     "missing_provenance_fields",
     "provenance_complete",
     "validate_agent_portfolio",
@@ -78,5 +87,6 @@ __all__ = [
     "validate_setup_event",
     "validate_snapshot",
     "validate_strategy_snapshot",
+    "validate_state_probe",
     "validate_target_weights",
 ]
