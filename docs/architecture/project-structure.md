@@ -15,7 +15,7 @@ quant-trading-workbench/
 │       ├── scripts/               # Dashboard 检查和辅助脚本
 │       └── docs/                  # Dashboard 技术说明
 ├── packages/
-│   ├── research-core/             # 共享研究契约和校验工具
+│   ├── research-core/             # 共享研究契约、状态探针和校验工具
 │   └── niu-men-line-strategy/     # Niu Men 策略源码和发布工具
 ├── docs/                          # 跨应用架构、迁移和能力说明
 ├── scripts/                       # 根级检查脚本
@@ -67,3 +67,11 @@ packages/niu-men-line-strategy/src/niu_men/
 5. 运行稳定后，再评估旧仓库的 runtime cutover 和归档。
 
 当前阶段先保持 Dashboard 的既有路径和部署方式稳定，不进行大范围目录移动。
+
+## Market State Probe
+
+`research-core.state_probe` 用于研究跨交易日的市场状态变量，例如短期均值相对长期均值的压缩程度。它输出当前状态和多个 forward horizon 的条件统计，并明确区分事件日命中数、独立 episode 数、可计算样本与右截尾样本。
+
+Dashboard 通过可选的 `stateProbe` 字段读取该快照。`censoredCount` 表示数据尾部尚不足以计算指定 horizon 的命中，不进入收益、胜率或均值的分母；`averageCapitalOccupancy` 与 `peakCapitalOccupancy` 表示重叠持有窗口的资金需求，不能把命中数直接理解为独立交易机会。
+
+仓库中的 `apps/dashboard/web/public/state-probe.example.json` 只是合约和 UI 的 synthetic fixture，不代表生产行情或投资结论。
