@@ -37,7 +37,7 @@ def test_deploy_workflow_validates_and_generates_before_frontend_build() -> None
 
 def test_deploy_workflow_uses_temporary_artifact_and_read_only_secret() -> None:
     assert "${{ runner.temp }}/rbreaker-input" in WORKFLOW
-    assert "actions/download-artifact@v4" in WORKFLOW
+    assert "actions/download-artifact@v8" in WORKFLOW
     assert "DASHBOARD_REPOSITORY_TOKEN" not in WORKFLOW
 
 
