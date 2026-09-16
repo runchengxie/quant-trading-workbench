@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installDailyNoteRoutes } from './market-intel-fixtures.mjs';
 
 function installDiagnostics(page) {
   page.on('console', (message) => {
@@ -17,6 +18,7 @@ function installDiagnostics(page) {
 }
 
 async function gotoDashboard(page) {
+  await installDailyNoteRoutes(page);
   installDiagnostics(page);
   const response = await page.goto('/');
   console.log(`[browser navigation] ${response?.status() ?? 'no response'} ${page.url()}`);

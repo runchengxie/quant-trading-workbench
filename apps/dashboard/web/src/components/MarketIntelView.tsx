@@ -12,6 +12,11 @@ import {
   type IntelSourceStatus,
   type MarketIntelSource,
 } from '../marketIntel.ts';
+import {
+  loadMarketIntelDailyNote,
+  MARKET_INTEL_PAGES_BASE_URL,
+  type MarketIntelDailyNoteResult,
+} from '../marketIntelDailyNote.ts';
 
 type Destination = 'overview' | 'workspace' | 'research' | 'agent';
 
@@ -140,6 +145,27 @@ function portfolioSource(definition: PortfolioDefinition, result: AgentPortfolio
   };
 }
 
+function dailyNoteSource(result: MarketIntelDailyNoteResult): MarketIntelSource {
+  const note = result.status === 'available' ? result.note : null;
+  const detail = note ? note.text
+    : result.status === 'missing' ? '暂无可用每日短评。'
+      : result.status === 'invalid' ? '短评或来源报告无法通过校验。'
+        : result.status === 'error' ? '每日短评服务暂不可用。'
+          : '正在读取 market-intel-pages 短评。';
+  return {
+    id: 'daily-note',
+    label: '每日资讯短评',
+    kind: 'daily-note',
+    status: result.status,
+    dataDate: note?.date ?? null,
+    generatedAt: note?.generatedAt ?? null,
+    schemaVersion: note ? 'market_intel_pages.daily_summaries.v1' : null,
+    sourcePath: 'market-intel-pages/data/daily_summaries.json',
+    destination: 'external',
+    detail,
+  };
+}
+
 function dateText(value: string | null): string {
   return value ? value.replace('T', ' ') : '—';
 }
@@ -189,6 +215,7 @@ export default function MarketIntelView({
   onNavigate,
 }: MarketIntelViewProps) {
   const [portfolioResults, setPortfolioResults] = useState<Record<string, AgentPortfolioLoadResult | null>>({});
+  const [dailyNoteResult, setDailyNoteResult] = useState<MarketIntelDailyNoteResult>({ status: 'loading' });
   const [viewCreatedAt] = useState(() => new Date().toISOString());
 
   useEffect(() => {
@@ -197,6 +224,14 @@ export default function MarketIntelView({
       [definition.id, await loadAgentPortfolioResult(definition.path)] as const
     ))).then((results) => {
       if (active) setPortfolioResults(Object.fromEntries(results));
+    });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    loadMarketIntelDailyNote().then((result) => {
+      if (active) setDailyNoteResult(result);
     });
     return () => { active = false; };
   }, []);
@@ -213,21 +248,10 @@ export default function MarketIntelView({
         sourcePath: 'research snapshots', destination: 'research' as const, detail: '策略研究快照加载中。',
       }] : []),
       ...PORTFOLIOS.map((definition) => portfolioSource(definition, portfolioResults[definition.id] ?? null)),
-      {
-        id: 'daily-note',
-        label: '每日资讯短评',
-        kind: 'daily-note' as const,
-        status: 'missing' as const,
-        dataDate: null,
-      generatedAt: null,
-      schemaVersion: null,
-      sourcePath: '未接入',
-      destination: 'external' as const,
-        detail: '尚未接入；等待 market-intel-pages provider 合并后再显示。',
-      },
+      dailyNoteSource(dailyNoteResult),
     ];
     return buildMarketIntelSnapshot(dashboard.generatedAt, viewCreatedAt, sources);
-  }, [contextualResearch, dashboard, portfolioResults, stateProbe, strategiesLoaded, strategyResults, viewCreatedAt]);
+  }, [contextualResearch, dailyNoteResult, dashboard, portfolioResults, stateProbe, strategiesLoaded, strategyResults, viewCreatedAt]);
 
   const marketAndContext = view.sources.filter((source) => source.kind === 'market' || source.kind === 'context');
   const strategies = view.sources.filter((source) => source.kind === 'research');
@@ -265,7 +289,28 @@ export default function MarketIntelView({
 
         <section className="market-intel-group market-intel-daily-note" aria-labelledby="market-intel-note-title">
           <div className="market-intel-group-heading"><p className="section-kicker">DAILY NOTE</p><h2 id="market-intel-note-title">每日短评</h2></div>
-          <SourceCard source={dailyNote} onNavigate={onNavigate} />
+          <article className="market-intel-source" data-source-id={dailyNote.id}>
+            <div className="market-intel-source-heading">
+              <h3>{dailyNote.label}</h3>
+              <SourceStatus status={dailyNote.status} />
+            </div>
+            <p className="market-intel-source-detail market-intel-note-text">{dailyNote.detail}</p>
+            <dl className="market-intel-source-meta">
+              <div><dt>短评日期</dt><dd>{dateText(dailyNote.dataDate)}</dd></div>
+              <div><dt>生成时间</dt><dd>{dateText(dailyNote.generatedAt)}</dd></div>
+            </dl>
+            {dailyNoteResult.status === 'available' && (
+              <>
+                <p className="market-intel-note-sources">
+                  基于晨报 <code>{dailyNoteResult.note.morningReportId}</code> 和前一晚晚报 <code>{dailyNoteResult.note.eveningReportId}</code>
+                </p>
+                <a className="market-intel-link" href={`${MARKET_INTEL_PAGES_BASE_URL}/`} target="_blank" rel="noreferrer">
+                  打开 Market Intel 原始资讯 →
+                </a>
+              </>
+            )}
+            <code className="market-intel-path">{dailyNote.sourcePath}</code>
+          </article>
         </section>
       </div>
 

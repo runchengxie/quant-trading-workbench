@@ -46,7 +46,7 @@ uv run --extra backtest python -m trading_research.strategies.rbreaker \
 
 Contextual research 对旧快照仍保持兼容，但 authoritative 发布会强制执行 enrichment 和 coverage 校验。详细 contract、session、day archetype、setup detector、intermarket 和 event study 语义见 [Contextual Research](docs/contextual-research.md)。
 
-Intel 当前不读取独立 `market-intel-pages` 短评，也不提供“较昨日变化”或 point-in-time replay。各数据源时间不同步时分别展示来源日期；Intel 的状态卡是页面 view model，不替换或回写 canonical snapshots。每日短评 provider 将在上游页面 PR 合入后单独接入。
+Intel 的每日短评从公开 `market-intel-pages` 静态快照读取，并校验短评日期、晨报来源和前一晚晚报来源；短评缺失或来源无效时只影响短评卡片。Workbench 不调用模型生成短评，也不存储或回写上游快照。Intel 当前不提供“较昨日变化”或 point-in-time replay；各数据源时间不同步时分别展示来源日期。
 
 ## 目录
 
