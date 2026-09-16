@@ -34,12 +34,12 @@
 - `buildMarketIntelSnapshot(dataDate, generatedAt, sources)` 返回 `{ schemaVersion: 'trading_research.market_intel_view.v1', dataDate, generatedAt, timingNote, sources }`；输入来源顺序原样保留。
 - `loadAgentPortfolioResult(path)` 返回 discriminated union：成功含已解析 `snapshot`，失败状态为 `missing`、`invalid` 或 `error`，不会 reject。
 
-- [ ] **Step 1: 为 view model 写失败测试**，覆盖空来源、固定 view schema、日期与生成时间不混同、source 状态和来源顺序。
-- [ ] **Step 2: 运行 `node --test apps/dashboard/web/src/marketIntel.test.mjs`**，确认因模块不存在而失败。
-- [ ] **Step 3: 实现最小纯函数**，定义上述类型和 builder；builder 不根据跨来源日期推断 `stale`。
-- [ ] **Step 4: 为 Agent loader 写失败测试**，覆盖 HTTP 404 为 `missing`、非 JSON/无效 schema 为 `invalid`、HTTP/network 错误为 `error`、有效 fixture 为 `available`。
-- [ ] **Step 5: 实现 `loadAgentPortfolioResult`**，复用 `parseAgentPortfolio`，保留现有 `loadAgentPortfolio` 对 Agent 页面调用方的行为。
-- [ ] **Step 6: 运行两组 Node 测试**，确认测试通过，并检查不存在未处理 rejection。
+- [x] **Step 1: 为 view model 写失败测试**，覆盖空来源、固定 view schema、日期与生成时间不混同、source 状态和来源顺序。
+- [x] **Step 2: 运行 `node --test apps/dashboard/web/src/marketIntel.test.mjs`**，确认因模块不存在而失败。
+- [x] **Step 3: 实现最小纯函数**，定义上述类型和 builder；builder 不根据跨来源日期推断 `stale`。
+- [x] **Step 4: 为 Agent loader 写失败测试**，覆盖 HTTP 404/非 JSON 为 `missing`、无效 schema 为 `invalid`、HTTP/network 错误为 `error`、有效 fixture 为 `available`。
+- [x] **Step 5: 实现 `loadAgentPortfolioResult`**，复用 `parseAgentPortfolio`，保留现有 `loadAgentPortfolio` 对 Agent 页面调用方的行为。
+- [x] **Step 6: 运行两组 Node 测试**，确认测试通过，并检查不存在未处理 rejection。
 - [ ] **Step 7: 提交** `feat: add Market Intel source model`。
 
 ### Task 2: 新增 Intel 聚合视图和 Workbench 导航入口
