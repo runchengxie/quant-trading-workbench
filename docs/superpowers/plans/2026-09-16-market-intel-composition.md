@@ -78,7 +78,7 @@
 - [x] **Step 3: 运行 Python 静态资产/数据校验**：`uv run --locked --package trading-research-dashboard-app pytest -q apps/dashboard/tests/test_static_assets.py` 与 `uv run --locked --package trading-research-dashboard-app python apps/dashboard/scripts/validate_static_assets.py`。
 - [x] **Step 4: 运行 `python scripts/check_foundation.py`**，记录完整结果；若有基线失败，确认与本次改动无关后报告。
 - [x] **Step 5: 检查 PR 差异**：确认不含快照 fixtures、生成数据、本机路径或 production artifacts；运行 `git diff --check`。
-- [ ] **Step 6: 推送任务分支并创建目标为 `main` 的 PR**，正文记录设计 spec、测试命令和限制；待 review/检查完成后再合并。
+- [x] **Step 6: 推送任务分支并创建目标为 `main` 的 PR**，正文记录设计 spec、测试命令和限制；待 review/检查完成后再合并。
 
 ## 验收条件
 
