@@ -48,6 +48,10 @@ export interface AgentPortfolioLatest {
   history: AgentPortfolioHistoryPoint[];
 }
 
+export type AgentPortfolioLoadResult =
+  | { status: 'available'; snapshot: AgentPortfolioLatest }
+  | { status: 'missing' | 'invalid' | 'error'; error: string | null };
+
 export const A_SHARE_INSTRUMENT_NAMES: Readonly<Record<string, string>> = {
   '159915.SZ': '创业板ETF',
   '510300.SH': '沪深300ETF',
@@ -194,4 +198,24 @@ export async function loadAgentPortfolio(path = 'agent/latest.json'): Promise<Ag
   const response = await fetch(normalizedPath);
   if (!response.ok) throw new Error(`Agent 组合快照加载失败：HTTP ${response.status}`);
   return parseAgentPortfolio(await response.json());
+}
+
+export async function loadAgentPortfolioResult(path: string): Promise<AgentPortfolioLoadResult> {
+  const normalizedPath = path.replace(/^\/+/, '');
+  let response: Response;
+  try {
+    response = await fetch(normalizedPath);
+  } catch {
+    return { status: 'error', error: '请求失败' };
+  }
+  if (response.status === 404) return { status: 'missing', error: null };
+  if (!response.ok) return { status: 'error', error: `HTTP ${response.status}` };
+  if (!(response.headers.get('content-type') ?? '').toLowerCase().includes('application/json')) {
+    return { status: 'missing', error: null };
+  }
+  try {
+    return { status: 'available', snapshot: parseAgentPortfolio(await response.json()) };
+  } catch {
+    return { status: 'invalid', error: '快照格式无效' };
+  }
 }

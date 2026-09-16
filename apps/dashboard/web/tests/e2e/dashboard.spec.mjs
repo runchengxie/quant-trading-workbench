@@ -21,10 +21,15 @@ async function gotoDashboard(page) {
   const response = await page.goto('/');
   console.log(`[browser navigation] ${response?.status() ?? 'no response'} ${page.url()}`);
   await page.waitForLoadState('networkidle');
-  if ((await page.getByRole('heading', { name: 'Trading Dashboard' }).count()) === 0) {
+  if ((await page.getByRole('heading', { name: 'Quant Trading Workbench' }).count()) === 0) {
     console.log(`[browser body] ${await page.locator('body').innerText()}`);
     console.log(`[browser root] ${await page.locator('#root').innerHTML()}`);
   }
+}
+
+async function openMonitor(page) {
+  await page.getByRole('button', { name: /盘前概览/ }).click();
+  await expect(page.getByRole('heading', { name: '标的概览' })).toBeVisible();
 }
 
 async function expectMarketAreaUsable(page) {
@@ -36,29 +41,35 @@ async function expectMarketAreaUsable(page) {
   await expect(page.locator('.selected-instrument-workspace canvas').first()).toBeVisible();
 }
 
-test('首页加载并提供三段式导航', async ({ page }) => {
+test('首页默认打开 Intel 并提供五段式导航', async ({ page }) => {
   await gotoDashboard(page);
 
-  await expect(page.getByRole('heading', { name: 'Trading Dashboard' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '盘前概览' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Quant Trading Workbench' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '今日市场情报' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Intel · 每日情报' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /盘前概览/ })).toBeVisible();
   await expect(page.locator('.section-nav-button').filter({ hasText: '日内工作台' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '策略研究' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /策略研究/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /纸面交易/ })).toBeVisible();
+
+  await openMonitor(page);
   await expect(page.getByRole('heading', { name: '标的概览' })).toBeVisible();
   await expect(page.locator('.instrument-overview-card').first()).toBeVisible();
 
   await expectMarketAreaUsable(page);
-  await page.getByRole('button', { name: '策略研究' }).click();
+  await page.getByRole('button', { name: /策略研究/ }).click();
   await expect(page.getByRole('heading', { name: '牛门线全市场样本外研究' })).toBeVisible();
   await expect(page.locator('.research-section canvas').first()).toBeVisible();
 });
 
 test('选择标的后日内工作台只展示当前标的', async ({ page }) => {
   await gotoDashboard(page);
+  await openMonitor(page);
 
   const cards = page.locator('.instrument-overview-card');
   const selectedCode = await cards.first().getAttribute('data-code');
   await cards.first().click();
-  await page.getByRole('button', { name: '日内工作台', exact: true }).click();
+  await page.locator('.section-nav-button').filter({ hasText: '日内工作台' }).click();
 
   await expect(page.getByRole('heading', { name: /日内工作台/ })).toContainText(selectedCode ?? '');
   await expect(page.locator('.selected-instrument-workspace')).toHaveCount(1);
@@ -82,6 +93,7 @@ test('市场筛选在没有美股快照时提供明确入口提示', async ({ pa
     });
   });
   await gotoDashboard(page);
+  await openMonitor(page);
 
   const usFilter = page.getByRole('button', { name: /美股/ });
   await expect(usFilter).toBeVisible();
@@ -97,6 +109,7 @@ test('research.json 缺失时行情区域继续可用', async ({ page }) => {
   });
 
   await gotoDashboard(page);
+  await openMonitor(page);
 
   await expectMarketAreaUsable(page);
   await page.getByRole('button', { name: '策略研究' }).click();
@@ -113,15 +126,16 @@ test('研究快照 schema 不受支持时只在研究区域报错', async ({ pag
   });
 
   await gotoDashboard(page);
+  await openMonitor(page);
 
   await expectMarketAreaUsable(page);
-  await page.getByRole('button', { name: '策略研究' }).click();
+  await page.getByRole('button', { name: /策略研究/ }).click();
   await expect(page.getByText(/research.json 加载失败：不支持的研究快照版本/)).toBeVisible();
 });
 
 test('策略研究提供牛门线、R-Breaker 和对比入口', async ({ page }) => {
   await gotoDashboard(page);
-  await page.getByRole('button', { name: '策略研究' }).click();
+  await page.getByRole('button', { name: /策略研究/ }).click();
 
   await expect(page.getByRole('button', { name: /牛门线/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /R-Breaker/ })).toContainText('已发布');
@@ -141,7 +155,7 @@ test('深色主题切换后页面与图表继续渲染', async ({ page }) => {
 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expectMarketAreaUsable(page);
-  await page.getByRole('button', { name: '策略研究' }).click();
+  await page.getByRole('button', { name: /策略研究/ }).click();
   await expect(page.locator('.research-section canvas').first()).toBeVisible();
 });
 

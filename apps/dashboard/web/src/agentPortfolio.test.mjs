@@ -78,3 +78,40 @@ test('loads a portfolio from an explicit static snapshot path', async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+test('loads an agent portfolio result with a status instead of rejecting', async () => {
+  const originalFetch = globalThis.fetch;
+  const { loadAgentPortfolioResult } = await import('./agentPortfolio.ts');
+  try {
+    globalThis.fetch = async () => new Response('{}', { status: 404 });
+    assert.equal((await loadAgentPortfolioResult('agent/etf/latest.json')).status, 'missing');
+
+    globalThis.fetch = async () => new Response('<html></html>', {
+      status: 200,
+      headers: { 'content-type': 'text/html' },
+    });
+    assert.equal((await loadAgentPortfolioResult('agent/etf/latest.json')).status, 'missing');
+
+    globalThis.fetch = async () => new Response(JSON.stringify({ schemaVersion: 'v9' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+    assert.equal((await loadAgentPortfolioResult('agent/etf/latest.json')).status, 'invalid');
+
+    globalThis.fetch = async () => new Response('{}', { status: 503 });
+    assert.equal((await loadAgentPortfolioResult('agent/etf/latest.json')).status, 'error');
+
+    globalThis.fetch = async () => { throw new Error('network down'); };
+    assert.equal((await loadAgentPortfolioResult('agent/etf/latest.json')).status, 'error');
+
+    globalThis.fetch = async () => new Response(JSON.stringify(validSnapshot()), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+    const available = await loadAgentPortfolioResult('agent/etf/latest.json');
+    assert.equal(available.status, 'available');
+    if (available.status === 'available') assert.equal(available.snapshot.portfolio.nav, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
