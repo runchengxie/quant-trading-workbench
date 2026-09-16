@@ -1,4 +1,4 @@
-export type IntelSourceStatus = 'available' | 'missing' | 'invalid' | 'error' | 'stale';
+export type IntelSourceStatus = 'loading' | 'available' | 'missing' | 'invalid' | 'error' | 'stale';
 export type IntelSourceKind = 'market' | 'context' | 'research' | 'paper-portfolio' | 'daily-note';
 export type IntelDestination = 'overview' | 'workspace' | 'research' | 'agent' | 'external';
 
@@ -10,6 +10,7 @@ export interface MarketIntelSource {
   dataDate: string | null;
   generatedAt: string | null;
   schemaVersion: string | null;
+  sourcePath: string;
   destination: IntelDestination;
   detail: string;
 }

@@ -30,7 +30,7 @@ Dashboard 已独立加载 `data.json`、`research.json`、R-Breaker 与 ICT 策�
 
 - 在 Workbench 主导航增加 `Intel · 每日情报`，作为默认分区；现有 Monitor、Workspace、Research、Agent 路由与行为保持不变。
 - 为聚合信息定义浏览器端 `MarketIntelSnapshot` view model，schema 标识为 `trading_research.market_intel_view.v1`。它只在 UI 层由已验证来源派生，不写入或替换来源 JSON。
-- 每个 source entry 包含稳定 source id、kind、status、`dataDate`、`generatedAt`、schema/version（可用时）、来源路径和简短状态信息。status 为 `available`、`missing`、`invalid`、`error` 或 `stale`。
+- 每个 source entry 包含稳定 source id、kind、status、`dataDate`、`generatedAt`、schema/version（可用时）、来源路径和简短状态信息。status 为 `loading`、`available`、`missing`、`invalid`、`error` 或 `stale`。
 - 每个栏目展示自身更新时间和数据日期；缺失/解析失败时提供该来源的状态文案及现有页面入口。
 - Intel 只显示最新可用输入，不缓存或回填旧日期以伪装当前数据。视图明确提示各来源时间戳不同步。
 

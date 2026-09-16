@@ -12,6 +12,7 @@ import InstrumentOverviewCard from './components/InstrumentOverviewCard';
 import StrategyResearchView from './components/StrategyResearchView';
 import SelectedInstrumentWorkspace from './components/SelectedInstrumentWorkspace';
 import AgentPortfolioView from './components/AgentPortfolioView';
+import MarketIntelView from './components/MarketIntelView';
 import { Button } from './components/ui/button';
 import {
   parseConditionalResearch,
@@ -29,7 +30,7 @@ const CHOICE_LABEL: Record<ThemeChoice, string> = {
   system: '跟随系统',
 };
 
-type ViewId = 'overview' | 'workspace' | 'research' | 'agent';
+type ViewId = 'intel' | 'overview' | 'workspace' | 'research' | 'agent';
 type MarketFilter = 'ALL' | Market;
 
 const MARKET_FILTERS: { id: MarketFilter; label: string }[] = [
@@ -40,6 +41,7 @@ const MARKET_FILTERS: { id: MarketFilter; label: string }[] = [
 ];
 
 const NAV_ITEMS: { id: ViewId; label: string }[] = [
+  { id: 'intel', label: 'Intel · 每日情报' },
   { id: 'overview', label: 'Monitor · 盘前概览' },
   { id: 'workspace', label: 'Workspace · 日内工作台' },
   { id: 'research', label: 'Research · 策略研究' },
@@ -65,7 +67,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [strategyResults, setStrategyResults] = useState<StrategyLoadResult[]>([]);
   const [researchLoaded, setResearchLoaded] = useState(false);
-  const [activeView, setActiveView] = useState<ViewId>('agent');
+  const [activeView, setActiveView] = useState<ViewId>('intel');
   const [activeResearchTab, setActiveResearchTab] = useState('niu-men-line');
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [activeMarket, setActiveMarket] = useState<MarketFilter>('ALL');
@@ -280,6 +282,17 @@ export default function App() {
           </nav>
 
       <main>
+        {activeView === 'intel' && (
+          <MarketIntelView
+            dashboard={data}
+            contextualResearch={contextualResearch}
+            stateProbe={stateProbe}
+            strategyResults={strategyResults}
+            strategiesLoaded={researchLoaded}
+            onNavigate={setActiveView}
+          />
+        )}
+
         {activeView === 'overview' && (
           <section className="overview-section" aria-labelledby="overview-title">
             <div className="section-heading">

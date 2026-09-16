@@ -8,12 +8,12 @@ test('builds a versioned view from sources without collapsing their dates', () =
     {
       id: 'market-state', label: '市场状态', kind: 'market', status: 'available',
       dataDate: '2026-09-15', generatedAt: '2026-09-16T07:00:00+08:00',
-      schemaVersion: 'trading_research.state_probe.v1', destination: 'overview', detail: '偏弱',
+      schemaVersion: 'trading_research.state_probe.v1', sourcePath: 'data.json', destination: 'overview', detail: '偏弱',
     },
     {
       id: 'contextual', label: 'Contextual Research', kind: 'research', status: 'stale',
       dataDate: '2026-09-14', generatedAt: '2026-09-15T18:00:00+08:00',
-      schemaVersion: 'trading_research.contextual_snapshot.v1', destination: 'workspace', detail: '研究日期较早',
+      schemaVersion: 'trading_research.contextual_snapshot.v1', sourcePath: 'data.json', destination: 'workspace', detail: '研究日期较早',
     },
   ];
 

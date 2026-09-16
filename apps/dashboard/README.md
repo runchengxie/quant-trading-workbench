@@ -1,6 +1,6 @@
 # Dashboard
 
-这是项目的 Python 数据应用和 React Web 看板，支持 A 股、港股、美股股票/ETF、行情指标、研究快照、图表导出、contextual research 和 R-Breaker 回测。
+这是项目的 Python 数据应用和 React Web 看板，支持 A 股、港股、美股股票/ETF、行情指标、研究快照、图表导出、contextual research 和 R-Breaker 回测。Workbench 首页的 Intel 分区汇总当前已发布的市场状态、研究快照和纸面组合来源，显示每个来源自己的数据日期和生成时间。
 
 ## 快速开始
 
@@ -45,6 +45,8 @@ uv run --extra backtest python -m trading_research.strategies.rbreaker \
 默认配置包括宝莱特、AAPL、MSFT、NVDA 和 TSLA。仓库内的静态 demo 快照目前包含宝莱特和 TSLA。重新生成美股快照时，先启动 `market-data-service`，并在服务中选择 yfinance 或 Alpaca 历史 provider。实时行情和历史数据配置见 [配置说明](docs/configuration.md)。
 
 Contextual research 对旧快照仍保持兼容，但 authoritative 发布会强制执行 enrichment 和 coverage 校验。详细 contract、session、day archetype、setup detector、intermarket 和 event study 语义见 [Contextual Research](docs/contextual-research.md)。
+
+Intel 当前不读取独立 `market-intel-pages` 短评，也不提供“较昨日变化”或 point-in-time replay。各数据源时间不同步时分别展示来源日期；Intel 的状态卡是页面 view model，不替换或回写 canonical snapshots。每日短评 provider 将在上游页面 PR 合入后单独接入。
 
 ## 目录
 

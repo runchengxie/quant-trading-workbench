@@ -29,8 +29,8 @@
 - Modify: `apps/dashboard/web/src/agentPortfolio.test.mjs`
 
 **Interfaces:**
-- `IntelSourceStatus = 'available' | 'missing' | 'invalid' | 'error' | 'stale'`。
-- `MarketIntelSource` 包含 `id`、`label`、`kind`、`status`、`dataDate`、`generatedAt`、`schemaVersion`、`destination`、`detail`。
+- `IntelSourceStatus = 'loading' | 'available' | 'missing' | 'invalid' | 'error' | 'stale'`。
+- `MarketIntelSource` 包含 `id`、`label`、`kind`、`status`、`dataDate`、`generatedAt`、`schemaVersion`、`sourcePath`、`destination`、`detail`。
 - `buildMarketIntelSnapshot(dataDate, generatedAt, sources)` 返回 `{ schemaVersion: 'trading_research.market_intel_view.v1', dataDate, generatedAt, timingNote, sources }`；输入来源顺序原样保留。
 - `loadAgentPortfolioResult(path)` 返回 discriminated union：成功含已解析 `snapshot`，失败状态为 `missing`、`invalid` 或 `error`，不会 reject。
 
@@ -40,7 +40,7 @@
 - [x] **Step 4: 为 Agent loader 写失败测试**，覆盖 HTTP 404/非 JSON 为 `missing`、无效 schema 为 `invalid`、HTTP/network 错误为 `error`、有效 fixture 为 `available`。
 - [x] **Step 5: 实现 `loadAgentPortfolioResult`**，复用 `parseAgentPortfolio`，保留现有 `loadAgentPortfolio` 对 Agent 页面调用方的行为。
 - [x] **Step 6: 运行两组 Node 测试**，确认测试通过，并检查不存在未处理 rejection。
-- [ ] **Step 7: 提交** `feat: add Market Intel source model`。
+- [x] **Step 7: 提交** `feat: add Market Intel source model`。
 
 ### Task 2: 新增 Intel 聚合视图和 Workbench 导航入口
 
@@ -56,15 +56,15 @@
 - View 在挂载后以 `Promise.all` 调用 `loadAgentPortfolioResult('agent/etf/latest.json')` 和 `loadAgentPortfolioResult('agent/stocks/latest.json')`；loader 对每条路径都返回结果，不因单项错误 reject。
 - `App` 增加 `intel` view id，将其设为初始 view；其余四个现有 view id、组件与行为保持不变。
 
-- [ ] **Step 1: 添加 Playwright 页面测试**，检查 Intel 默认导航项、研究/Agent 来源失败隔离、缺失每日短评文案及到现有 Monitor/Research view 的跳转。
-- [ ] **Step 2: 构建现有 Dashboard 后运行 `pnpm --filter wu-t0-dashboard-web exec playwright test tests/e2e/market-intel.spec.mjs`**，确认失败原因对应页面/导航尚不存在。
-- [ ] **Step 3: 实现 `MarketIntelView`**，分成 Daily State、Research Status、Paper Portfolio、Daily Note 四个区域；从已校验对象构造 source entries，仅显示数据实际存在的数值，并呈现各自的 `dataDate` / `generatedAt`。
-- [ ] **Step 4: 实现来源独立状态**，研究状态沿用 `StrategyLoadResult`，Agent 使用 Task 1 loader；state probe/contextual payload 缺失显示 `missing`，原始字段非空但 parser 返回 null 时显示 `invalid`。
-- [ ] **Step 5: 修改 `App.tsx`**，为主导航增加 `Intel · 每日情报`，把它设为默认分区并传入已解析来源；导航按钮回调切换到现有分区。
-- [ ] **Step 6: 增加 Intel 页面样式**，复用现有 semantic tokens、主题和状态颜色；桌面使用紧凑网格，窄屏顺序堆叠，状态同时使用文字而不只依赖颜色。
-- [ ] **Step 7: 更新 Dashboard README**，说明 Intel 聚合范围、静态来源时间语义、目前未接入每日短评及不提供 yesterday-change/PIT replay。
-- [ ] **Step 8: 运行 Playwright 页面测试和相关 unit tests**，确认 Intel 默认入口、导航和孤立错误状态通过。
-- [ ] **Step 9: 提交** `feat: add Workbench Market Intel view`。
+- [x] **Step 1: 添加 Playwright 页面测试**，检查 Intel 默认导航项、研究/Agent 来源失败隔离、缺失每日短评文案及到现有 Monitor/Research view 的跳转。
+- [x] **Step 2: 构建现有 Dashboard 后运行 `pnpm --filter wu-t0-dashboard-web exec playwright test tests/e2e/market-intel.spec.mjs`**，确认页面和导航断言按预期失败。
+- [x] **Step 3: 实现 `MarketIntelView`**，分成 Daily State、Research Status、Paper Portfolio、Daily Note 四个区域；从已校验对象构造 source entries，仅显示数据实际存在的数值，并呈现各自的 `dataDate` / `generatedAt`。
+- [x] **Step 4: 实现来源独立状态**，研究状态沿用 `StrategyLoadResult`，Agent 使用 Task 1 loader；Agent 首次响应前显示 `loading`；state probe/contextual payload 缺失显示 `missing`，原始字段非空但 parser 返回 null 时显示 `invalid`。
+- [x] **Step 5: 修改 `App.tsx`**，为主导航增加 `Intel · 每日情报`，把它设为默认分区并传入已解析来源；导航按钮回调切换到现有分区。
+- [x] **Step 6: 增加 Intel 页面样式**，复用现有 semantic tokens、主题和状态颜色；桌面使用紧凑网格，窄屏顺序堆叠，状态同时使用文字而不只依赖颜色。
+- [x] **Step 7: 更新 Dashboard README**，说明 Intel 聚合范围、静态来源时间语义、目前未接入每日短评及不提供 yesterday-change/PIT replay。
+- [x] **Step 8: 运行 Playwright 页面测试和相关 unit tests**，确认 Intel 默认入口、导航和孤立错误状态通过。
+- [x] **Step 9: 提交** `feat: add Workbench Market Intel view`。
 
 ### Task 3: 全量验证和 PR 交付
 
@@ -73,11 +73,11 @@
 - Verify: `apps/dashboard/web` build and test workflow
 - Verify: monorepo foundation checks
 
-- [ ] **Step 1: 运行前端单测**：`pnpm --filter wu-t0-dashboard-web test`。
-- [ ] **Step 2: 运行前端构建**：`pnpm --filter wu-t0-dashboard-web build`。
-- [ ] **Step 3: 运行 Python 静态资产/数据校验**：从 `apps/dashboard/` 执行 `uv run pytest tests/test_static_assets.py` 与仓库对应的 static asset validator。
-- [ ] **Step 4: 运行 `python scripts/check_foundation.py`**，记录完整结果；若有基线失败，确认与本次改动无关后报告。
-- [ ] **Step 5: 检查 PR 差异**：确认不含快照 fixtures、生成数据、本机路径或 production artifacts；运行 `git diff --check`。
+- [x] **Step 1: 运行前端单测**：`pnpm --filter wu-t0-dashboard-web test`。
+- [x] **Step 2: 运行前端构建**：`pnpm --filter wu-t0-dashboard-web build`。
+- [x] **Step 3: 运行 Python 静态资产/数据校验**：`uv run --locked --package trading-research-dashboard-app pytest -q apps/dashboard/tests/test_static_assets.py` 与 `uv run --locked --package trading-research-dashboard-app python apps/dashboard/scripts/validate_static_assets.py`。
+- [x] **Step 4: 运行 `python scripts/check_foundation.py`**，记录完整结果；若有基线失败，确认与本次改动无关后报告。
+- [x] **Step 5: 检查 PR 差异**：确认不含快照 fixtures、生成数据、本机路径或 production artifacts；运行 `git diff --check`。
 - [ ] **Step 6: 推送任务分支并创建目标为 `main` 的 PR**，正文记录设计 spec、测试命令和限制；待 review/检查完成后再合并。
 
 ## 验收条件
