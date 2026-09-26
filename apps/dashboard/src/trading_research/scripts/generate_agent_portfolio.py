@@ -4,7 +4,7 @@ import argparse
 import json
 import os
 import tempfile
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
@@ -195,6 +195,14 @@ def generate_snapshot(
     if not isinstance(previous_closes, dict):
         raise ValueError("previousCloses must be an object")
     previous_payload = load_agent_portfolio(previous_path)
+    decision_date = date.fromisoformat(as_of)
+    previous_date = date.fromisoformat(previous_payload["asOf"])
+    if decision_date < previous_date:
+        raise ValueError("as_of must not precede previous portfolio date")
+    if decision_date == previous_date:
+        # A retry or a closed market must not trade twice or relabel stale evidence.
+        _write_json_atomic(output, previous_payload)
+        return previous_payload
     previous = _state_from_payload(previous_payload)
     symbols = set(prices) | set(previous.positions)
     if allowed_symbols is not None:
