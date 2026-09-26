@@ -135,3 +135,41 @@ def test_generator_scales_risky_weights_to_keep_the_minimum_cash(tmp_path: Path)
     assert payload["decision"]["targetWeights"]["CASH"] == pytest.approx(0.1)
     assert payload["decision"]["targetWeights"]["SPY"] == pytest.approx(0.8 * 0.9 / 0.95)
     assert payload["decision"]["targetWeights"]["QQQ"] == pytest.approx(0.15 * 0.9 / 0.95)
+
+
+def test_generator_reuses_same_day_snapshot_without_a_new_model_decision(tmp_path: Path) -> None:
+    prices, previous, response = _write_inputs(tmp_path)
+    original = json.loads(previous.read_text(encoding="utf-8"))
+    output = tmp_path / "latest.json"
+    # A missing response catches accidental model work before the date guard.
+    response.unlink()
+    payload = generate_snapshot(
+        prices_path=prices,
+        previous_path=previous,
+        model_response_path=response,
+        output=output,
+        as_of="2026-08-31",
+        generated_at="2026-09-01T08:00:00Z",
+    )
+    assert payload == original
+    assert load_agent_portfolio(output) == original
+    assert payload["generatedAt"] == "2026-08-31T22:00:00Z"
+    assert payload["trades"] == []
+    assert len(payload["history"]) == 1
+
+
+def test_generator_rejects_older_dates_before_model_work(tmp_path: Path) -> None:
+    prices, previous, response = _write_inputs(tmp_path)
+    output = tmp_path / "latest.json"
+    output.write_text("reviewed output", encoding="utf-8")
+    response.unlink()
+    with pytest.raises(ValueError, match="as_of must not precede previous portfolio date"):
+        generate_snapshot(
+            prices_path=prices,
+            previous_path=previous,
+            model_response_path=response,
+            output=output,
+            as_of="2026-08-30",
+            generated_at="2026-09-01T08:00:00Z",
+        )
+    assert output.read_text(encoding="utf-8") == "reviewed output"
