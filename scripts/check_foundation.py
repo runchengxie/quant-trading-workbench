@@ -53,6 +53,7 @@ M1_FOUNDATION_TRACKED_FILES = frozenset(
         ".env.example",
         "AGENTS.md",
         "README.md",
+        "README.zh-CN.md",
         "docs/migration/dashboard-import.md",
         "docs/migration/niu-men-import.md",
         "docs/migration/README.md",

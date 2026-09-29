@@ -11,6 +11,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 ROOT = Path(__file__).resolve().parents[1]
 INCLUDE_FILES = (
     "README.md",
+    "README.zh-CN.md",
     ".env.example",
     ".gitignore",
     "pyproject.toml",
