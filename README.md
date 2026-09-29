@@ -1,43 +1,44 @@
 # Quant Trading Workbench
 
-这是一个面向量化研究与交易判断的交互式 Workbench，包含市场观察、日内 research probe、intraday playbook、execution experiment、研究快照和纸面组合实验。它负责把现象、事件、标的和研究证据连接起来，帮助研究者继续追问一个结论在哪里成立、来自哪些样本以及如何沿时间变化。
+[中文 README](README.zh-CN.md)
 
-仓库属于 quant 系列，但不把日内规则自动当作 alpha 策略。Workbench 负责观察、实验和回放；通过明确假设、成本后结果、样本外验证和稳健性检查的研究候选，再进入 `quant-research` 的 canonical strategy layer。Web 应用仍位于 `apps/dashboard/`，这是刻意保留的稳定路径，不代表需要移动 monorepo 内部目录。
+`quant-trading-workbench` is an interactive workbench for quantitative research and trading decisions. It combines market observation, intraday research probes, intraday playbooks, execution experiments, research snapshots, and paper-portfolio experiments. It connects observations, events, instruments, and research evidence so researchers can inspect where a conclusion holds, which samples support it, and how it changes over time.
 
-## 项目维护状态
+The workbench observes, experiments, and replays intraday ideas. A candidate can enter the canonical strategy layer in `quant-research` only after its assumptions, post-cost results, out-of-sample behavior, and robustness have been reviewed. The web application remains under `apps/dashboard/` as a stable path.
 
-本仓库是 `quant-trading-workbench` 的统一维护主线，已整合 `wu-t0-trading-dashboard` 和
-`niu-men-line-strategy` 的 Dashboard、策略研究与共享契约代码。后续功能开发、问题修复、发布和运行维护均以本仓库为准；两个旧仓库保留用于历史追溯和回滚，不再作为独立功能开发主线。
+## Maintenance status
 
-Workbench 与日内研究对象的边界见 [Workbench 边界](docs/workbench-boundary.md)。
+This repository is the unified maintenance line for `quant-trading-workbench`. It incorporates the Dashboard, strategy research, and shared contracts from `wu-t0-trading-dashboard` and `niu-men-line-strategy`. New development, fixes, releases, and operations use this repository; the two legacy repositories remain available for historical tracing and rollback.
 
-## 从哪里开始
+See [Workbench boundaries](docs/workbench-boundary.md) for the boundary around intraday research objects.
 
-- [新人上手](docs/getting-started.md)
-- [项目结构](docs/architecture/project-structure.md)
-- [当前路线图](docs/roadmap/README.md)
-- [生产切换手册](docs/operations/runtime-cutover.md)
-- [Agent 纸面组合实验](docs/agent-paper-portfolio.md)
+## Where to start
 
-## 项目包含什么
+- [Getting started](docs/getting-started.md)
+- [Project structure](docs/architecture/project-structure.md)
+- [Current roadmap](docs/roadmap/README.md)
+- [Runtime cutover runbook](docs/operations/runtime-cutover.md)
+- [Agent paper-portfolio experiment](docs/agent-paper-portfolio.md)
+
+## Repository layout
 
 ```text
-apps/dashboard/                 数据处理、策略研究和 Web 看板
-apps/market-data-service/       美股实时与历史行情服务
-packages/research-core/         研究快照和 JSON Schema
-packages/niu-men-line-strategy/ Niu Men 策略与研究工具
-docs/                           架构、配置、部署和维护文档
-tests/                          根目录契约和 workflow 测试
-apps/dashboard/web/public/agent/ Agent 纸面组合快照
+apps/dashboard/                 Data processing, strategy research, and web dashboard
+apps/market-data-service/       US real-time and historical market-data service
+packages/research-core/         Research snapshots and JSON Schema
+packages/niu-men-line-strategy/ Niu Men strategy and research tools
+docs/                           Architecture, configuration, deployment, and maintenance docs
+tests/                          Root contracts and workflow tests
+apps/dashboard/web/public/agent/ Agent paper-portfolio snapshots
 ```
 
-当前看板支持 A 股、港股和美股股票/ETF。生成器默认配置包括 AAPL、MSFT、NVDA 和 TSLA，仓库内的可直接运行 demo 快照目前包含宝莱特和 TSLA。R-Breaker 研究结果可在看板的策略研究区域查看。
+The dashboard supports A-share, Hong Kong, and US stocks and ETFs. Generator defaults include AAPL, MSFT, NVDA, and TSLA. The repository also includes runnable demo snapshots for 宝莱特 and TSLA. R-Breaker research results are available in the strategy research area.
 
-线上地址：<https://trading-research-dashboard.xiaowang01.workers.dev>
+Live dashboard: <https://trading-research-dashboard.xiaowang01.workers.dev>
 
-## 快速开始
+## Quick start
 
-需要 Python 3.11 或更高版本、`uv`、Node.js 22 和 `pnpm` 11：
+Requirements: Python 3.11+, `uv`, Node.js 22, and `pnpm` 11.
 
 ```bash
 uv sync
@@ -47,7 +48,7 @@ pnpm --filter wu-t0-dashboard-web test
 pnpm --filter wu-t0-dashboard-web build
 ```
 
-仓库内的 `apps/dashboard/web/public/data.json` 是可直接部署的静态 demo 快照，当前包含宝莱特和 TSLA。快照可以滞后于最新交易日，适合演示页面功能。需要重新生成时，在 `apps/dashboard` 目录执行：
+The static demo snapshot at `apps/dashboard/web/public/data.json` is deployable and currently contains 宝莱特 and TSLA. It may lag the latest trading day. Regenerate it from `apps/dashboard` with:
 
 ```bash
 MARKET_DATA_SERVICE_URL=http://127.0.0.1:8000 \
@@ -55,41 +56,38 @@ MARKET_DATA_SERVICE_URL=http://127.0.0.1:8000 \
   --codes sz300246,TSLA.US --json web/public/data.json
 ```
 
-Dashboard 还提供一个 `Agent 组合` 页面，用于查看低频 A 股纸面投资实验的净值、持仓、决策和成交记录。实验通过 GitHub Actions 每个工作日运行一次，默认使用 Tushare 获取 ETF 行情，配置方法和边界见 [Agent 纸面组合实验](docs/agent-paper-portfolio.md)。它不连接券商，也不发送真实订单。
+The Dashboard also has an `Agent Portfolio` page for low-frequency A-share paper-investment experiments, including NAV, holdings, decisions, and fills. GitHub Actions runs the experiment on each business day and uses Tushare for ETF prices by default. It does not connect to a broker or send live orders. See [Agent paper-portfolio experiment](docs/agent-paper-portfolio.md) for configuration and boundaries.
 
-行情服务使用 FastAPI，并为 health、ready、quote 和 bars REST endpoint 提供命名的 Pydantic response models。FastAPI 会据此生成 OpenAPI schema。需要给前端 codegen 或其他工具使用时：
+The market-data service uses FastAPI with named Pydantic response models for the `health`, `ready`, `quote`, and `bars` REST endpoints. FastAPI uses these models to generate the OpenAPI schema. Export it for frontend code generation or other tools with:
 
 ```bash
 cd apps/market-data-service
 uv run --locked python scripts/export_openapi.py /tmp/market-data-openapi.json
 ```
 
-Web Dashboard 继续优先使用静态快照；配置 `VITE_MARKET_DATA_URL` 后，会额外检查行情服务 health 并连接现有 WebSocket。行情服务不可用时页面继续保留静态降级模式。
+The web dashboard prefers static snapshots. Setting `VITE_MARKET_DATA_URL` additionally checks market-data service health and connects the existing WebSocket. If the service is unavailable, the page stays in static fallback mode.
 
-定时 runtime report 默认运行在 `shadow` 模式。provider 暂时缺少某个基线标的时，流程会保留可用候选并记录缺失标的。`authoritative` 模式仍要求候选覆盖全部基线标的，适合生产切换后的严格发布。
+Scheduled runtime reports default to `shadow` mode. If a provider temporarily lacks a baseline instrument, the workflow keeps available candidates and records the missing instrument. `authoritative` mode requires full baseline coverage and is intended for strict publication after production cutover.
 
-生成一份用于私下分享的安全源码包（包含完整项目源码、workflow、Dashboard 静态快照和 `SHARE-MANIFEST.json`，默认不包含 `.env`、真实 key、原始缓存或构建产物）：
+Create a safe source bundle for private sharing:
 
 ```bash
 uv run python scripts/package_share.py --output /tmp/quant-trading-workbench-share.zip
 ```
 
-分享包不包含外部 `market-data-platform` 和 `etf-minute-fetcher` 的原始数据；`SHARE-MANIFEST.json` 会记录这两个外部数据源、对应环境变量和未打包状态。接收方可以直接使用包内的静态 `data.json` 和研究快照运行 Dashboard；如需重新抓取行情，再按文档配置外部数据目录或 yfinance/Alpaca provider。
+The bundle includes source, workflows, the static Dashboard snapshot, and `SHARE-MANIFEST.json`, while excluding `.env`, real keys, raw caches, and build artifacts. Raw data from the external `market-data-platform` and `etf-minute-fetcher` projects is not included; the manifest records those sources, environment variables, and their excluded status.
 
-如需在同一页面查看美股，请生成包含显式美股 ticker 的快照，例如
-`--codes sz300246,AAPL.US,MSFT.US,NVDA.US,TSLA.US`。没有美股快照时，页面的“美股”筛选会保留为空态提示，不会伪造行情。
+To show US instruments on the same page, generate a snapshot with explicit US tickers such as `--codes sz300246,AAPL.US,MSFT.US,NVDA.US,TSLA.US`. Without a US snapshot, the US filter remains an empty state and does not fabricate quotes.
 
-## 重要边界
+## Boundaries
 
-`research-workspace`、`market-data-platform` 和 `etf-minute-fetcher` 是仓库外的独立项目，当前仓库没有 Git submodule。原始行情、凭据和大型回测产物不提交到本仓库。
+`research-workspace`, `market-data-platform`, and `etf-minute-fetcher` are separate repositories outside this project. The repository has no Git submodules. Raw market data, credentials, and large backtest artifacts stay outside Git.
 
-## 当前状态
+## Current status
 
-- M0 至 M4：已完成，包含一次真实 R-Breaker Tushare 快照发布
-- M5：代码和 yfinance 历史回退已完成；真实 Redis、provider 和部署环境故障验证仍待执行
-- M6：shadow runtime 和安全检查已完成；生产切换、连续运行观察仍待真实运行证据
-- M6b：两个旧仓库已声明统一维护主线；freeze、调用方审计和 archive 仍是外部运维事项
+- M0 through M4 are complete, including one real R-Breaker Tushare snapshot publication.
+- M5 code and the yfinance historical fallback are complete. Real Redis, provider, and deployment-failure validation remains pending.
+- M6 shadow runtime and safety checks are complete. Production cutover and continuous runtime observation still require real execution evidence.
+- M6b declares the two legacy repositories as a unified maintenance line. Freeze, caller audit, and archive remain operational tasks.
 
-详细状态以 [`docs/roadmap/README.md`](docs/roadmap/README.md) 为准。
-
-本项目用于策略研究和工程验证。历史数据和回测结果不代表未来收益，使用者需要自行评估交易风险。
+See [`docs/roadmap/README.md`](docs/roadmap/README.md) for the detailed status. This project supports strategy research and engineering validation. Historical data and backtest results do not imply future returns.
