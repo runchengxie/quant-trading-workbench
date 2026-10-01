@@ -8,7 +8,7 @@
 $DATA_PLATFORM_ROOT/assets/tushare/a_share/daily/a_share_all_20150101_20260824_daily_clean
 ```
 
-默认环境变量展开为 `~/data/market-data-platform`。目录按证券代码保存 `data/<ts_code>.parquet`。加载器只读取指定证券文件，不扫描模糊文件名，也不复制整个数据目录。
+默认环境变量展开为 `~/data/quant/quant-market-data-platform`。目录按证券代码保存 `data/<ts_code>.parquet`。加载器只读取指定证券文件，不扫描模糊文件名，也不复制整个数据目录。
 
 ## 2. 字段映射
 
