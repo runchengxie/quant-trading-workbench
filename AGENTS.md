@@ -1,5 +1,9 @@
 # Agent 与协作者指南
 
+## PR review 例外
+
+由用户本人提交，或由用户明确委托 agent 完成的 PR，无需单独的人工 review；这是持续有效的授权，不需要逐个 PR 确认，并覆盖本文件中的一般 PR review 要求。必需检查仍须通过，冲突必须解决；不得绕过 GitHub 分支保护或 ruleset 强制要求的审批。本仓库要求审查的所有权或依赖迁移内容，仍须完成对应的技术与安全核查，但这项核查不等于 PR 必须获得人工 review。
+
 ## 仓库边界
 
 - `research-workspace`、`market-data-platform`、`etf-minute-fetcher` 等研究与行情基础设施继续放在本仓库之外。这些目录是独立仓库，不是当前项目的 Git submodule。
