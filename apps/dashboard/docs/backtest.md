@@ -106,7 +106,7 @@ producer 会请求日线和 1 分钟 bars，只保留 `America/New_York` 的 09:
 暂时不会自动发布到线上。
 
 省略 `--output-root` 时，producer 会保存到
-`~/data/trading-research-dashboard/rbreaker/alpaca/<symbol>/<session-date>/`。CI 应显式
+`~/data/quant/quant-trading-workbench/rbreaker/alpaca/<symbol>/<session-date>/`。CI 应显式
 传入 runner 临时目录，避免把原始行情写入仓库工作区。
 
 部署阶段不直接访问行情供应商。研究任务应先生成包含 `manifest.json` 和

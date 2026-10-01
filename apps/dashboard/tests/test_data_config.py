@@ -10,7 +10,7 @@ from trading_research.data.config import (
 def test_project_data_root_defaults_to_user_data_directory(monkeypatch) -> None:
     monkeypatch.delenv("TRADING_RESEARCH_DATA_ROOT", raising=False)
 
-    assert project_data_root() == Path.home() / "data" / "trading-research-dashboard"
+    assert project_data_root() == Path.home() / "data" / "quant" / "quant-trading-workbench"
 
 
 def test_project_data_root_can_be_overridden(monkeypatch, tmp_path) -> None:

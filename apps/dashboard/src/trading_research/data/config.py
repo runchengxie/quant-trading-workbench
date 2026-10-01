@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 DATA_ROOT_ENV = "TRADING_RESEARCH_DATA_ROOT"
-DEFAULT_DATA_ROOT = Path.home() / "data" / "trading-research-dashboard"
+DEFAULT_DATA_ROOT = Path.home() / "data" / "quant" / "quant-trading-workbench"
 
 
 def project_data_root() -> Path:

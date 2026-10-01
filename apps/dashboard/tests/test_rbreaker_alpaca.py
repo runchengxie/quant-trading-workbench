@@ -151,5 +151,5 @@ def test_default_output_root_is_project_scoped_and_date_partitioned() -> None:
 
     assert root.parts[-2:] == ("AAPL.US", "2025-08-22")
     assert root.as_posix().endswith(
-        "data/trading-research-dashboard/rbreaker/alpaca/AAPL.US/2025-08-22"
+        "data/quant/quant-trading-workbench/rbreaker/alpaca/AAPL.US/2025-08-22"
     )
