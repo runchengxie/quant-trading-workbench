@@ -1,0 +1,94 @@
+# 新人上手
+
+[English](../getting-started.md)
+
+本仓库是 `quant-trading-workbench`：用于市场观察、日内研究 probe、playbook、执行实验和研究快照交互。下面的命令仍然使用稳定的 `apps/dashboard/` 路径；其中 Dashboard 是 Workbench 的 Web 应用边界。
+
+## 环境准备
+
+需要 Python 3.11 或更高版本、`uv`、Node.js 22 和 `pnpm` 11。在仓库根目录执行：
+
+```bash
+uv sync --locked
+pnpm install --frozen-lockfile
+```
+
+## 运行 Dashboard
+
+生成本地数据：
+
+```bash
+cd apps/dashboard
+MARKET_DATA_SERVICE_URL=http://127.0.0.1:8000 \
+  uv run --locked python -m trading_research.dashboard.astock_tech \
+  --codes sz300246,AAPL.US,TSLA.US \
+  --json web/public/data.json
+```
+
+启动前端：
+
+```bash
+cd ../..
+pnpm --filter wu-t0-dashboard-web dev
+```
+
+## 运行测试
+
+```bash
+# 根目录测试
+uv run --locked --extra dev pytest -q
+
+# Dashboard 测试
+cd apps/dashboard
+uv run --locked --extra backtest pytest -q
+uv run --locked ruff check src scripts tests
+
+# 行情服务测试
+cd ../market-data-service
+uv run --locked pytest -q
+uv run --locked ruff check src tests
+```
+
+这些是局部检查。`.github/workflows/foundation.yml` 定义手动执行的完整检查，包括包检查、Dashboard 和 Niu Men 覆盖率门槛、类型检查、依赖审计及边界检查。`.github/workflows/pr-ci.yml` 定义按路径筛选的 Dashboard PR 检查。文档修改不会自动触发手动 foundation workflow。
+
+生成数据时省略 `--output-root`，使用配置的外部数据根目录。
+
+## 需要密钥的功能
+
+美股实时行情需要在行情服务进程中配置 `APCA_API_KEY_ID` 和 `APCA_API_SECRET_KEY`。R-Breaker 数据下载需要 `TUSHARE_TOKEN`。密钥不要写入前端配置或提交到仓库。
+
+如果只需要美股历史日线或近期分钟数据，可以不配置 Alpaca，服务会在 `MARKET_DATA_HISTORICAL_PROVIDER=auto` 时使用 yfinance。复制根目录 `.env.example` 为 `.env` 后按需填写配置；`.env` 不应提交到 Git。
+
+项目自己的缓存、研究 artifact 和运行输出默认保存在仓库外的 `~/data/quant/quant-trading-workbench`。A 股/ETF 原始数据仍由外部 `quant-market-data-platform` 和 `etf-minute-fetcher` 项目提供，不复制进本项目数据根目录。数据源、发布和部署的详细说明见各子项目 `docs/` 目录，以及 [项目路线图](../roadmap/README.md)。
+
+## 双份线上部署
+
+Dashboard 的发布 workflow 会在同一次构建中同时发布：
+
+- Cloudflare Workers Static Assets：主线上地址；
+- GitHub Pages：静态镜像，地址通常为
+  `https://<github-owner>.github.io/<repository-name>/`。
+
+当前线上美股发布范围暂时固定为 `TSLA.US`；其他美股不会由运行时发布 workflow
+自动生成或上线。
+
+首次启用前，在 GitHub 仓库的 `Settings → Pages → Build and deployment` 中将
+`Source` 设置为 `GitHub Actions`。之后手动运行对应 workflow，或等待已有的工作日
+调度 workflow，Pages 会使用同一份 `apps/dashboard/web/dist` 构建产物。
+
+GitHub Pages 只托管静态文件，默认展示仓库内经过校验的 JSON 快照；它不会运行
+Python 行情服务。需要实时美股行情时，可以在构建环境配置公开的
+`VITE_MARKET_DATA_URL`，并确保行情服务允许 GitHub Pages origin 的 CORS 请求；不要
+把 Alpaca、Tushare 或模型 API 密钥放入 `VITE_*` 变量。
+
+## 私下分享
+
+如果需要把项目交给朋友本地运行，使用根目录的安全打包脚本：
+
+```bash
+uv run python scripts/package_share.py --output /tmp/quant-trading-workbench-share.zip
+```
+
+压缩包包含完整项目源码、GitHub Actions workflow、Dashboard 静态 `data.json`/研究快照、`.env.example` 和 `SHARE-MANIFEST.json`，不带 `.env`、真实 Alpaca/Tushare key、原始缓存、`node_modules` 或构建产物。`market-data-platform` 和 `etf-minute-fetcher` 的原始数据不进入压缩包，manifest 会记录外部数据源及其环境变量。接收方复制 `.env.example` 为 `.env` 后，在自己的环境中填写 key；不要把真实 key 放进压缩包或前端 `VITE_*` 变量。
+
+默认看板会按当前 `data.json` 的内容显示市场。仓库内的 demo 快照包含宝莱特和 TSLA，数据可以滞后于最新交易日，但日线、分时、指标和日内工作台均可直接演示。重新生成美股数据时，在行情服务中设置 `MARKET_DATA_HISTORICAL_PROVIDER=yfinance`，或配置 Alpaca 后使用 Alpaca 历史数据。浏览器不会直接访问 yfinance 或 Alpaca。
