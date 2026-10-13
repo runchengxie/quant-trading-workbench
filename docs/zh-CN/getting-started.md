@@ -34,19 +34,16 @@ pnpm --filter wu-t0-dashboard-web dev
 
 ## 运行测试
 
+在仓库根目录执行：
+
 ```bash
-# 根目录测试
 uv run --locked --extra dev pytest -q
-
-# Dashboard 测试
-cd apps/dashboard
-uv run --locked --extra backtest pytest -q
-uv run --locked ruff check src scripts tests
-
-# 行情服务测试
-cd ../market-data-service
-uv run --locked pytest -q
-uv run --locked ruff check src tests
+(cd apps/dashboard && uv run --locked --extra backtest pytest -q)
+(cd apps/dashboard && uv run --locked ruff check src scripts tests)
+(cd apps/market-data-service && uv run --locked pytest -q)
+(cd apps/market-data-service && uv run --locked ruff check src tests)
+pnpm --filter wu-t0-dashboard-web test
+pnpm --filter wu-t0-dashboard-web build
 ```
 
 这些是局部检查。`.github/workflows/foundation.yml` 定义手动执行的完整检查，包括包检查、Dashboard 和 Niu Men 覆盖率门槛、类型检查、依赖审计及边界检查。`.github/workflows/pr-ci.yml` 定义按路径筛选的 Dashboard PR 检查。文档修改不会自动触发手动 foundation workflow。

@@ -1,10 +1,10 @@
 # 文档目录
 
 - [新人上手](getting-started.md)
-- [项目结构](architecture/project-structure.md)
+- [项目结构](architecture/project-structure.md) · [中文](architecture/project-structure.zh-CN.md)
 - [当前路线图](roadmap/README.md)
 - [维护性审查](maintenance/quality-audit.md)
-- [生产切换手册](operations/runtime-cutover.md)
+- [生产切换手册](operations/runtime-cutover.md) · [中文](operations/runtime-cutover.zh-CN.md)
 - [行情与图表导出](capabilities/market-data-and-chart-export.md)
 - [Agent 纸面组合实验](agent-paper-portfolio.md)
 - [Market State Probe 设计](superpowers/specs/2026-09-14-market-state-probe-design.md)

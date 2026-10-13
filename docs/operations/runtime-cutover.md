@@ -1,8 +1,10 @@
 # Runtime Cutover Runbook
 
-本文记录 M6 从 legacy runtime 切换到 `trading-research-dashboard` monorepo 的事实、证据和回滚边界。任何未真实执行的 gate 都明确记录为 `not-yet-run`，workflow 定义本身不算生产证据。
+[简体中文](runtime-cutover.zh-CN.md)
 
-## 当前权威状态
+This runbook records M6 migration from the legacy runtime to `quant-trading-workbench`, including evidence and rollback boundaries. Unexecuted acceptance gates remain `not-yet-run`. Workflow definitions alone do not establish production evidence.
+
+## Current ownership
 
 | Responsibility | Current authority | Target authority | Status |
 | --- | --- | --- | --- |
@@ -42,10 +44,10 @@ The legacy workflow is now manual and requires explicit rollback acknowledgement
 
 ### Monorepo shadow workflow
 
-Candidate workflow:
+Current monorepo workflow:
 
 ```text
-repository: runchengxie/trading-research-dashboard
+repository: runchengxie/quant-trading-workbench
 workflow: .github/workflows/dashboard-report.yml
 schedule: 10 1 * * 1-5
 scheduled mode: shadow
@@ -137,11 +139,11 @@ post-cutover smoke: not-yet-run
 
 The public URL above is the current monorepo Worker documented by this repository. The actual cutover check must still verify the configured `CLOUDFLARE_PUBLIC_URL` used by the authoritative run.
 
-当前 Worker 的静态 demo 已在 2026-08-28 做过手动检查：根页面可访问，`/data.json` 返回宝莱特和 `TSLA.US`，TSLA 含日线和分时数据。这个检查只证明静态 demo 部署可用，不能替代下面的 authoritative cutover 和连续观察 gate。
+A manual static-demo check on 2026-08-28 found the root page reachable and `/data.json` containing 宝莱特 and `TSLA.US`, including TSLA daily and intraday data. That dated check establishes static-demo availability only; it does not replace authoritative cutover or continuous observation.
 
 ## Post-cutover observation
 
-Issue #19 remains open until five consecutive trading-day authoritative runs are observed after cutover.
+Track post-cutover acceptance in issue #19. It requires five consecutive trading-day authoritative runs after cutover.
 
 | Trading day | Scheduled run | Deploy/smoke | Legacy writes absent | Result |
 | --- | --- | --- | --- | --- |
@@ -177,6 +179,6 @@ Dashboard runtime rollback does not automatically transfer research publication 
 
 ## M6b retirement boundary
 
-Issue #21 remains open until issue #19 has completed the post-cutover observation above. The local legacy checkouts are no longer required for normal development and can be removed; remote repository archive/read-only decisions remain an external GitHub operation.
+Track retirement in issue #21 after the post-cutover observation in issue #19 is complete. The local legacy checkouts are no longer required for normal development and can be removed; remote repository archive/read-only decisions remain an external GitHub operation.
 
 The two legacy READMEs now state that maintenance is unified in this monorepo, and their normal workflows are rollback-only. This is separate from a GitHub Archive operation. The M6b observation and caller-audit requirements remain independent gates; see [`legacy-retirement.md`](legacy-retirement.md).
