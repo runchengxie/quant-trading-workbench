@@ -1,77 +1,40 @@
-# 项目结构说明
+# Project structure
 
-当前仓库是 `quant-trading-workbench` 的集成 monorepo。Workbench、Niu Men、`research-core` 和实时行情服务核心已经进入仓库。仓库内部继续保留 `apps/dashboard/` 作为 Web 应用边界，不因为产品改名而移动目录或重命名运行时包。
+[简体中文](project-structure.zh-CN.md)
 
-## 当前结构
+`quant-trading-workbench` integrates the Dashboard, Niu Men, `research-core`, and the real-time market-data service. `apps/dashboard/` remains the stable boundary for the web application and Dashboard Python package. Product naming does not rename runtime packages or persisted contracts.
 
-```text
-quant-trading-workbench/
-├── apps/
-│   └── dashboard/
-│       ├── src/trading_research/  # Dashboard Python 包
-│       ├── tests/                 # Dashboard Python 测试
-│       ├── web/src/               # React 和 TypeScript 源码
-│       ├── web/public/            # 可发布静态 JSON
-│       ├── scripts/               # Dashboard 检查和辅助脚本
-│       └── docs/                  # Dashboard 技术说明
-├── packages/
-│   ├── research-core/             # 共享研究契约、状态探针和校验工具
-│   └── niu-men-line-strategy/     # Niu Men 策略源码和发布工具
-├── docs/                          # 跨应用架构、迁移和能力说明
-├── scripts/                       # 根级检查脚本
-├── tests/                         # monorepo 结构测试
-├── pyproject.toml                 # 根级工具配置
-└── uv.lock
-```
-
-## 推荐的长期结构
-
-每个 Python 应用或 package 都使用自己的 `src/` 目录：
+## Current directories
 
 ```text
-apps/dashboard/src/trading_research/
-packages/research-core/src/research_core/
-packages/niu-men-line-strategy/src/niu_men/
+apps/dashboard/src/trading_research/        Dashboard data processing and research
+apps/dashboard/web/                         React, TypeScript, and reviewed static snapshots
+apps/market-data-service/src/market_data_service/  FastAPI market-data service
+packages/research-core/src/research_core/    Shared schemas, validation, and research mechanisms
+packages/niu-men-line-strategy/src/niu_men/  Niu Men strategy and publication tools
+docs/                                       Cross-application architecture, operations, and migration
+scripts/                                    Root validation and publication entry points
+tests/                                      Monorepo boundaries and cross-component contracts
 ```
 
-这种结构可以让源码、测试、脚本和文档职责清楚，也能避免 Python 从仓库根目录直接导入未安装的模块。
+Python applications and packages keep their own `src/`, tests, and documentation. Root `pyproject.toml` and `uv.lock` manage the Python workspace. Root `pnpm-workspace.yaml` and `pnpm-lock.yaml` manage the frontend. Do not create a separate Dashboard `package-lock.json`.
 
-前端继续使用 `apps/dashboard/web/src/`。这是 Web 工具链的标准目录，不需要为了和 Python 目录统一而移动到根级 `src/`。
+The market-data service already lives in its own `apps/market-data-service/` application. Its FastAPI endpoints use named response models and expose an OpenAPI schema. Real Redis, provider, and deployment-failure validation remain separate operational tasks; merged source is not production acceptance.
 
-## 文档分层
+## Components and contracts
 
-### 根 README
+The Dashboard prefers static JSON. Setting the public `VITE_MARKET_DATA_URL` enables service-health checks and the WebSocket connection. Unavailable services retain static fallback. Raw market data and service credentials do not belong in the browser.
 
-面向第一次接触项目的人，只保留项目用途、当前完成情况、最短启动路径、最基本的验证命令和详细文档入口。
+`research-core` owns research snapshot schemas, validation, provenance, and state probes. Migration preserves `niu_men.research_snapshot.v2`. Other versioned contracts retain their identifiers as well; display names and locale do not rename them.
 
-### 应用和 package README
+`research_core.state_probe` studies cross-day states and forward outcomes. It distinguishes event hits, independent episodes, evaluable samples, and right-censored observations. The Dashboard consumes the optional `stateProbe` field. `censoredCount` is excluded from return, win-rate, and mean denominators; `averageCapitalOccupancy` and `peakCapitalOccupancy` measure capital needed by overlapping windows. `state-probe.example.json` is a synthetic contract/UI fixture, not production market data or an investment conclusion.
 
-每个应用或 package 的 README 说明自己的职责、安装方式、常用命令和边界。它不承担完整的架构设计记录。
+Observation rules are research tools by default. The Workbench can consume published `quant-research` snapshots and supply candidate hypotheses. Strategy promotion and formal validation remain owned by `quant-research`; see [Workbench boundaries](../workbench-boundary.md). The Agent page presents paper portfolios and does not send real orders.
 
-### `docs/`
+## Documentation and runtime boundaries
 
-这里保存需要持续维护的技术细节，包括数据源、缓存、字段契约、指标和策略逻辑、静态快照、研究快照、图片导出、Cloudflare 部署、跨项目迁移和实时行情 roadmap。
+The root README provides purpose, status, short startup commands, and validation entry points. Application/package READMEs describe their own responsibilities, configuration, and commands. `docs/` maintains cross-component facts. `docs/superpowers/` and migration records preserve dated designs, paths, and evidence rather than replacing current status.
 
-### `docs/superpowers/`
+Source, schemas, and workflows have moved into this repository. External market-data projects remain independent repositories, and this monorepo has no submodules. Production cutover and continuous observation still require the gates in the [cutover runbook](../operations/runtime-cutover.md); completed directory migration does not pass those gates.
 
-这里保留设计和实施过程中的历史记录。历史计划中的路径、测试数量和阶段状态可能属于当时的上下文，当前事实应以根 README、应用文档和现行 workflow 为准。
-
-## 迁移顺序
-
-目录调整应配合功能边界逐步进行：
-
-1. Niu Men 导入 `packages/niu-men-line-strategy/src/`，保留可追溯历史。
-2. 把共享 schema、fixture 和 provenance 校验放入 `packages/research-core/src/`。
-3. 通过 Python workspace 声明本地 package 依赖。
-4. 为实时行情服务建立独立应用或服务目录，不把长驻采集进程塞进 Dashboard Web 应用。
-5. 运行稳定后，再评估旧仓库的 runtime cutover 和归档。
-
-当前阶段先保持 Dashboard 的既有路径和部署方式稳定，不进行大范围目录移动。
-
-## Market State Probe
-
-`research-core.state_probe` 用于研究跨交易日的市场状态变量，例如短期均值相对长期均值的压缩程度。它输出当前状态和多个 forward horizon 的条件统计，并明确区分事件日命中数、独立 episode 数、可计算样本与右截尾样本。
-
-Dashboard 通过可选的 `stateProbe` 字段读取该快照。`censoredCount` 表示数据尾部尚不足以计算指定 horizon 的命中，不进入收益、胜率或均值的分母；`averageCapitalOccupancy` 与 `peakCapitalOccupancy` 表示重叠持有窗口的资金需求，不能把命中数直接理解为独立交易机会。
-
-仓库中的 `apps/dashboard/web/public/state-probe.example.json` 只是合约和 UI 的 synthetic fixture，不代表生产行情或投资结论。
+See [Getting started](../getting-started.md) for startup and focused checks. `foundation.yml` defines the full manual gate, while `pr-ci.yml` defines path-filtered Dashboard PR checks. Documentation changes do not automatically execute production checks or deployment.

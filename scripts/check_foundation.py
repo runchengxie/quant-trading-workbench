@@ -106,6 +106,7 @@ DOCUMENTATION_ALLOWED_FILES = frozenset(
         "docs/agent-paper-portfolio.md",
         "docs/README.md",
         "docs/getting-started.md",
+        "docs/zh-CN/getting-started.md",
         "docs/workbench-boundary.md",
     )
 )

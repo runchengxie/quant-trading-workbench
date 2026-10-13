@@ -16,9 +16,9 @@ Workbench 与日内研究对象的边界见 [Workbench 边界](docs/workbench-bo
 ## 从哪里开始
 
 - [新人上手](docs/getting-started.md)
-- [项目结构](docs/architecture/project-structure.md)
+- [项目结构](docs/architecture/project-structure.zh-CN.md)
 - [当前路线图](docs/roadmap/README.md)
-- [生产切换手册](docs/operations/runtime-cutover.md)
+- [生产切换手册](docs/operations/runtime-cutover.zh-CN.md)
 - [Agent 纸面组合实验](docs/agent-paper-portfolio.md)
 
 ## 项目包含什么

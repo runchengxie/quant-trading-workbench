@@ -119,6 +119,8 @@ def test_superpowers_documents_can_be_added_during_m1(
 @pytest.mark.parametrize(
     ("relative_path", "contents", "is_allowed"),
     (
+        ("docs/zh-CN/getting-started.md", "# Getting started\n", True),
+        ("docs/zh-CN/unreviewed.md", "# Unreviewed\n", False),
         (
             "apps/dashboard/src/trading_research/dashboard/astock_tech.py",
             "print('Dashboard implementation')\n",
