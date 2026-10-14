@@ -56,7 +56,7 @@ MARKET_DATA_SERVICE_URL=http://127.0.0.1:8000 \
   --codes sz300246,TSLA.US --json web/public/data.json
 ```
 
-The Dashboard also has an `Agent Portfolio` page for low-frequency A-share paper-investment experiments, including NAV, holdings, decisions, and fills. GitHub Actions runs the experiment on each business day and uses Tushare for ETF prices by default. It does not connect to a broker or send live orders. See [Agent paper-portfolio experiment](docs/agent-paper-portfolio.md) for configuration and boundaries.
+The Dashboard also has an `Agent Portfolio` page for low-frequency A-share paper-investment experiments, including NAV, holdings, decisions, and fills. GitHub Actions schedules the experiment on weekdays (Monday through Friday) at 22:30 UTC and uses Tushare for ETF prices by default. The schedule does not apply an exchange-holiday calendar, and the decision date follows the latest available price input. It does not connect to a broker or send live orders. See [Agent paper-portfolio experiment](docs/agent-paper-portfolio.md) for configuration and boundaries.
 
 The market-data service uses FastAPI with named Pydantic response models for the `health`, `ready`, `quote`, and `bars` REST endpoints. FastAPI uses these models to generate the OpenAPI schema. Export it for frontend code generation or other tools with:
 
