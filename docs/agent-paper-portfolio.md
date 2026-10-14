@@ -1,6 +1,6 @@
 # Agent 纸面组合实验
 
-Dashboard 现在包含一个低频 A 股 Agent 投资实验。GitHub Actions 每个工作日运行一次，通过 Tushare 获取沪深 300、中证 1000、创业板和国债 ETF 的最近收盘价，调用模型生成目标仓位，再由固定的 Python 模拟器计算纸面成交和净值。
+Dashboard 现在包含一个低频 A 股 Agent 投资实验。GitHub Actions 每周一至周五定时触发，通过 Tushare 获取沪深 300、中证 1000、创业板和国债 ETF 的最近收盘价，调用模型生成目标仓位，再由固定的 Python 模拟器计算纸面成交和净值。定时规则不读取交易所休市日历，决策日期以价格输入中的 `asOf` 为准。
 
 默认标的为 `510300.SH`、`512100.SH`、`159915.SZ` 和 `511010.SH`。这些标的都可以用 ETF 价格进行纸面成交，指数代码只适合用作基准，不作为直接交易标的。
 
@@ -60,7 +60,7 @@ OPENROUTER_MODEL=openrouter/free
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```
 
-工作流名称为 `Agent paper portfolio`，支持手动运行和每个工作日 22:30 UTC 自动运行。自动运行时间按 UTC 解释，实际行情日期以价格输入中的 `asOf` 为准。
+工作流名称为 `Agent paper portfolio`，支持手动运行和每周一至周五 22:30 UTC 自动触发。自动触发时间按 UTC 解释；workflow 不读取交易所休市日历，实际决策日期以价格输入中的 `asOf` 为准。
 
 当前工作流只在同时配置以下变量时部署 Cloudflare：
 
