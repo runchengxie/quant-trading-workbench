@@ -27,7 +27,7 @@ Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维�
 repository: runchengxie/quant-trading-workbench
 workflow: .github/workflows/dashboard-report.yml
 schedule: 10 1 * * 1-5
-scheduled mode: shadow
+scheduled mode: authoritative
 manual modes: shadow | authoritative
 ```
 
@@ -52,16 +52,11 @@ manual modes: shadow | authoritative
 
 ## 切换当天
 
-当前状态为 `not-yet-run`，按以下顺序执行：
+一次性 authoritative 切换已由运行 [#38917305897](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897) 完成，使用提交 `601819b9c574010da62ec626b427f230734a13c0`。候选校验、前端测试与构建、GitHub Pages 部署、Cloudflare 部署和部署 smoke 均通过。两个公开 `/data.json` 端点都返回 HTTP 200、非空股票快照及 `generatedAt: 2026-10-16`。这个封闭实验不要求观察五天。
 
-1. 从已审核、包含 PR #38 shadow 发布门控的 monorepo `main` 开始。
-2. 手动运行 `dashboard-report.yml` 的 `authoritative` 模式。
-3. 要求数据生成、安全验证、前端测试与构建、Cloudflare 部署及 smoke 全部成功。
-4. 核对配置的公开 URL 数据日期与候选一致，并确认审核过的静态 fallback 行为。
-5. 单独通过小 PR 将定时 `SCHEDULE_MODE` 从 `shadow` 改为 `authoritative`。
-6. 记录运行、数据日期、部署 URL 和 SHA。这个封闭实验不要求切换后连续观察五天。
+本 PR 将定时 `SCHEDULE_MODE` 从 `shadow` 改为 `authoritative`。第一次定时运行作为运行检查，不再是切换门槛。
 
-切换提交、authoritative run、数据日期验证、调度激活 PR/SHA 和部署 smoke 尚未记录。旧仓库冻结 PR 已分别合并：Dashboard #44，merge SHA `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`；Niu Men #22，merge SHA `cbeea806239500b0aaea1d8b47f5010938bb7d86`。文档中的 Worker 地址是 `https://trading-research-dashboard.xiaowang01.workers.dev`，实际验收仍须核对运行中配置的 `CLOUDFLARE_PUBLIC_URL`。
+切换提交：`601819b9c574010da62ec626b427f230734a13c0`；authoritative run、公开数据日期和部署 smoke 均已记录。Pages 和 Worker 的 `/data.json` 均返回 `generatedAt: 2026-10-16`、HTTP 200 和非空快照。旧仓库冻结 PR 已分别合并：Dashboard #44，merge SHA `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`；Niu Men #22，merge SHA `cbeea806239500b0aaea1d8b47f5010938bb7d86`。调度激活 PR/SHA 在合并后补录。
 
 2026-08-28 手动静态 demo 检查曾确认根页面可访问，`/data.json` 包含宝莱特与 `TSLA.US`，TSLA 有日线和分时数据。这是历史静态部署证据，不能替代正式切换或连续观察。
 

@@ -10,7 +10,7 @@ This runbook records the dashboard snapshot experiment's migration to `quant-tra
 | --- | --- | --- | --- |
 | Dashboard source/build config | monorepo | monorepo | active |
 | Manual Dashboard deploy | monorepo | monorepo | available |
-| Weekday market-data generation + deploy | monorepo shadow workflow | monorepo authoritative workflow | shadow; one successful authoritative run remains |
+| Weekday market-data generation + deploy | monorepo shadow workflow | monorepo authoritative workflow | authoritative schedule activated after successful manual run |
 | Reviewed static `data.json` fallback | monorepo | monorepo | active |
 | Research snapshot validation/publication | monorepo | monorepo | available |
 | Legacy Niu Men Dashboard publication | monorepo publication path | monorepo publication path | legacy workflow rollback-only |
@@ -50,7 +50,7 @@ Current monorepo workflow:
 repository: runchengxie/quant-trading-workbench
 workflow: .github/workflows/dashboard-report.yml
 schedule: 10 1 * * 1-5
-scheduled mode: shadow
+scheduled mode: authoritative
 manual modes: shadow | authoritative
 ```
 
@@ -93,29 +93,24 @@ Six scheduled runs completed candidate generation, snapshot validation, runtime 
 
 The October 16 run used commit `aa1595077a1978a65fb6aa2cd77a5e4c47abd330`, before PR #38 merged at `4d596af1adb3ec2a3a7e4c4699cfa611200986cf`. Its Pages deployment is historical behavior and does not establish a Cloudflare authoritative deployment. The deployed Pages `/data.json` reported `generatedAt: 2026-10-16` when checked.
 
-## Cutover-day gate
+## Cutover evidence
 
-Cutover day status: `not-yet-run`.
+Cutover status: completed with the manual authoritative run below; weekday scheduling is activated by this PR.
 
-Required order for this experiment:
+The one-time authoritative cutover completed in run [#38917305897](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897) on commit `601819b9c574010da62ec626b427f230734a13c0`. Candidate validation, web tests/build, GitHub Pages deployment, Cloudflare deployment and the deployment smoke check passed. Both public `/data.json` endpoints returned HTTP 200, a non-empty stock snapshot, and `generatedAt: 2026-10-16`. This closed experiment does not require five days of observation.
 
-1. Start from reviewed monorepo `main` with PR #38's shadow publication gate merged.
-2. Manually run `dashboard-report.yml` in `authoritative` mode.
-3. Require candidate generation, runtime safety validation, web tests/build, Cloudflare deploy and smoke check to succeed.
-4. Verify the configured public URL serves the candidate data date and retains the reviewed static fallback behavior.
-5. Open and merge a separate small PR changing scheduled `SCHEDULE_MODE` from `shadow` to `authoritative`.
-6. Record the run, data date, deployed URLs and SHAs. No five-day observation period is required for this closed experiment.
+This PR changes scheduled `SCHEDULE_MODE` from `shadow` to `authoritative`. The first scheduled run remains an operational check; it is not a cutover gate.
 
 Evidence fields:
 
 ```text
-monorepo cutover SHA: not-yet-run
-authoritative workflow run: not-yet-run
+monorepo cutover SHA: 601819b9c574010da62ec626b427f230734a13c0
+authoritative workflow run: https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897 (success)
 production URL: https://trading-research-dashboard.xiaowang01.workers.dev
-production data date verification: not-yet-run
-schedule activation PR/SHA: not-yet-run
-authoritative run data date: not-yet-run
-authoritative deployment smoke: not-yet-run
+GitHub Pages URL: https://runchengxie.github.io/quant-trading-workbench/
+production data date verification: Pages and Worker `/data.json` both returned `generatedAt: 2026-10-16`, HTTP 200, non-empty stock data
+schedule activation PR/SHA: this PR / recorded at merge
+authoritative deployment smoke: passed in run #38917305897
 ```
 
 The public URL above is the current monorepo Worker documented by this repository. The actual cutover check must still verify the configured `CLOUDFLARE_PUBLIC_URL` used by the authoritative run.

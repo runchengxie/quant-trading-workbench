@@ -14,11 +14,11 @@ def test_publish_snapshot_requires_dedicated_cross_repo_artifact_token() -> None
     assert "inputs.artifact_repository == github.repository && github.token || secrets.RESEARCH_ARTIFACT_TOKEN" in text
 
 
-def test_dashboard_report_schedule_is_shadow_only_until_cutover() -> None:
+def test_dashboard_report_schedule_runs_authoritative_experiment_mode() -> None:
     text = (_root() / ".github/workflows/dashboard-report.yml").read_text(encoding="utf-8")
 
     assert 'cron: "10 1 * * 1-5"' in text
-    assert "SCHEDULE_MODE: shadow" in text
+    assert "SCHEDULE_MODE: authoritative" in text
     assert "options:" in text
     assert "- shadow" in text
     assert "- authoritative" in text
