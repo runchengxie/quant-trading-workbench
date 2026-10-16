@@ -15,6 +15,10 @@ def test_openapi_exposes_named_market_data_response_models() -> None:
         == "#/components/schemas/QuoteResponse"
     )
     assert (
+        schema["paths"]["/v1/quotes/{symbol}"]["get"]["responses"]["503"]["description"]
+        == "Redis live quote store is unavailable"
+    )
+    assert (
         schema["paths"]["/v1/bars/{symbol}"]["get"]["responses"]["200"]["content"]
         ["application/json"]["schema"]["$ref"]
         == "#/components/schemas/BarsResponse"
