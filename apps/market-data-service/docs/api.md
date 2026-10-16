@@ -40,6 +40,7 @@ GET /v1/quotes/{symbol}
 `freshness` 由服务根据 `MARKET_DATA_QUOTE_MAX_AGE_SECONDS` 计算。行情超过这个时间会标记为 `stale`。
 
 没有可用报价时返回 `404`。代码格式错误时返回 `400`。
+Redis 暂时不可用时返回 `503`，与“报价不存在”的 `404` 区分。
 
 ## 历史行情
 

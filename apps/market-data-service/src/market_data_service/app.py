@@ -10,6 +10,7 @@ from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from redis.exceptions import RedisError
 
 from .api_models import BarsResponse, HealthResponse, QuoteResponse, ReadyResponse
 from .collector import AlpacaCollector
@@ -140,12 +141,21 @@ def create_app(
             "collector": collector_status,
         }
 
-    @app.get("/v1/quotes/{symbol}", response_model=QuoteResponse)
+    @app.get(
+        "/v1/quotes/{symbol}",
+        response_model=QuoteResponse,
+        responses={503: {"description": "Redis live quote store is unavailable"}},
+    )
     async def get_quote(symbol: str) -> dict[str, object]:
         try:
             state = await _get_quote(quote_store, symbol, now=datetime.now(UTC))
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except RedisError as exc:
+            raise HTTPException(
+                status_code=503,
+                detail="live quote service unavailable",
+            ) from exc
         if state is None:
             raise HTTPException(status_code=404, detail="quote not available")
         return _quote_payload(state)
