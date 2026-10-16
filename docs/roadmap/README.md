@@ -13,8 +13,8 @@
 | M2b | 跨策略快照契约 | 已完成 | `trading_research.strategy_snapshot.v1` 已落地，Niu Men 保留旧 wire adapter，R-Breaker 有 generic producer/consumer |
 | M3 | Python workspace 和 package 依赖 | 已完成 | 根 `uv.lock` 是唯一锁文件，成员通过 uv workspace 统一解析 |
 | M4 | 研究快照自动发布 | 已完成 | Niu Men publisher 与 R-Breaker artifact→generator→独立 snapshot PR 链路均已进入 `main`；R-Breaker 已完成一次真实 Tushare publication |
-| M5 | 实时行情服务 | 代码收口，外部验证待执行 | 港股兼容、Alpaca 美股实时/历史、Redis runtime、readiness 和 yfinance 历史回退已进入当前主线；真实 Redis/provider 故障验证和部署环境检查未执行 |
-| M6 | runtime cutover | shadow 代码完成，生产 gate 待执行 | scheduled mode 仍为 `shadow`；5 个连续交易日、人工对比、publication 和 authoritative cutover 需要真实运行证据 |
+| M5 | 实时行情服务 | 基础 Redis 集成已验证，故障恢复与部署验证待执行 | Redis 7 CI 已验证实际读写、旧报价拒写、心跳、Pub/Sub 和同步 collector 写入；Redis/provider 断线恢复、WebSocket 重连、readiness 和静态 fallback 故障验证仍未执行 |
+| M6 | runtime cutover | 5 个交易日 shadow gate 已通过，生产切换待执行 | 10 月 9 日及 12 至 15 日五次定时运行均完成数据校验、测试、构建和公开 GitHub Pages 发布；Cloudflare authoritative 部署未执行。人工同日对比、研究发布、authoritative cutover 和切换后观察仍需真实证据 |
 | M6b | legacy freeze / retirement | 本地 checkout 可清理，远程 archive 待执行 | 两个旧仓库已改为 rollback-only；本地目录删除不影响 monorepo，远程 archive 仍需外部调用方审计和真实 cutover 证据 |
 
 ## 已完成能力
@@ -97,7 +97,7 @@ R-Breaker 已完成一次真实 Tushare publication，当前发布链路包括�
 
 代码已收口，但以下事项仍未完成：
 
-1. **真实 Redis 验证**：使用实际 Redis server 覆盖 Lua compare-and-set、Redis loss、provider loss、reconnect、stale 和静态 fallback。
+1. **真实环境故障恢复验证**：Redis 7 CI 已覆盖读写、单调报价更新、心跳、Pub/Sub 和同步 collector 写入；仍需在集成环境覆盖 Redis loss、provider loss、reconnect、stale 和静态 fallback。
 2. **readiness 运行验证**：确认 API alive、Redis unavailable、collector stale 和 upstream stale 在部署环境中返回正确状态。
 3. **WebSocket Redis 验证**：确认 Redis snapshot bootstrap、Pub/Sub 更新、断线清理和重连行为。
 4. **进程边界**：collector 与 API 按批准设计拆分运行，避免把当前 Alpaca stream thread/event loop 与单个 async Redis client 不安全地跨线程共享。
@@ -112,7 +112,7 @@ shadow workflow 已合并到 `main`，但 production cutover 仍未完成。真�
 
 切换前必须具备：
 
-1. 5 个连续交易日 scheduled shadow run 成功。
+1. 5 个连续交易日 scheduled shadow run 成功（已满足，证据见 [运行切换手册](../operations/runtime-cutover.zh-CN.md)）。
 2. 至少 2 次 shadow artifact 与同日旧 production 页面人工核对。
 3. research publication 至少 3 个记录周期，并且至少 1 次是真实 publication。
 4. cross-repository artifact authentication 有真实成功证据，或生产链路不再依赖该跨仓库下载。
