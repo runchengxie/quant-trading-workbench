@@ -12,7 +12,7 @@
 | Last-known-good rollback SHA | `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e` |
 | Freeze PR | [#44](https://github.com/runchengxie/wu-t0-trading-dashboard/pull/44), merged 2026-08-28; `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4` |
 | Production writes | scheduled/push triggers removed; manual rollback requires exact acknowledgement |
-| External caller audit | GitHub code search, local cron, systemd config, and loaded user units found no active caller; legacy Cloudflare Worker still responds HTTP 200 with `data.json` generated 2026-08-28 |
+| External caller audit | GitHub code search, local cron, systemd config/loaded units, and repository self-hosted runners found no active caller; legacy Cloudflare Worker still responds HTTP 200 with `data.json` generated 2026-08-28, versus 2026-10-16 on the current Worker |
 | Archive decision | recommend archive after deciding whether to disable the stale Worker and retire its manual rollback workflow |
 | Archive operation | not-yet-run |
 
@@ -27,7 +27,7 @@
 | Freeze PR | [#22](https://github.com/runchengxie/niu-men-line-strategy/pull/22), merged 2026-08-28; `cbeea806239500b0aaea1d8b47f5010938bb7d86` |
 | Scheduled Dashboard publication | replaced by explicit rollback-only workflow |
 | Research publication cycles | no qualifying real cycles recorded here |
-| External caller audit | GitHub code search found no caller; Workbench's stale default artifact repository was removed, and source must now be selected explicitly; no publication workflow runs found |
+| External caller audit | GitHub code search and repository self-hosted runners found no caller; Workbench's stale default artifact repository was removed, and source must now be selected explicitly; no rollback-publication workflow runs or artifact producers found |
 | Archive decision | recommend archive; no GitHub code caller, rollback-publication run, local scheduled caller, or artifact producer was found; this disables its manual rollback workflow |
 | Archive operation | not-yet-run |
 

@@ -15,7 +15,7 @@
 | M4 | 研究快照自动发布 | 已完成 | Niu Men publisher 与 R-Breaker artifact→generator→独立 snapshot PR 链路均已进入 `main`；R-Breaker 已完成一次真实 Tushare publication |
 | M5 | 实时行情服务 | 基础 Redis 集成已验证，故障恢复与部署验证待执行 | Redis 7 CI 已验证实际读写、旧报价拒写、心跳、Pub/Sub 和同步 collector 写入；Redis/provider 断线恢复、WebSocket 重连、readiness 和静态 fallback 故障验证仍未执行 |
 | M6 | runtime cutover | 已完成 | 手动 authoritative run #38917305897 在 SHA `601819b9c574010da62ec626b427f230734a13c0` 上通过；Pages 与 Cloudflare Worker 均返回非空数据，`generatedAt` 为 2026-10-16。工作日 schedule 已设为 authoritative；本封闭实验不要求五天观察 |
-| M6b | legacy freeze / retirement | 外部调用方审计基本完成，归档决定待定 | 两个旧仓库的常规定时/推送入口已冻结。GitHub 代码搜索、本机 cron、落盘和已加载的 systemd 单元均未发现实际调用方。旧 `wu-t0` Worker 仍提供 2026-08-28 的陈旧快照，需决定是否下线及是否放弃旧回滚入口。Workbench 中指向旧 Niu Men 的默认 artifact 仓库已移除，来源需由操作者显式选择 |
+| M6b | legacy freeze / retirement | 外部调用方审计基本完成，归档决定待定 | 两个旧仓库的常规定时/推送入口已冻结。GitHub 代码搜索、本机 cron、落盘/已加载 systemd 单元和仓库 self-hosted runner 均未发现实际调用方。旧 `wu-t0` Worker 的数据停在 2026-08-28；当前 Worker 数据为 2026-10-16。Workbench 中指向旧 Niu Men 的默认 artifact 仓库已移除，来源需由操作者显式选择 |
 
 ## 已完成能力
 
