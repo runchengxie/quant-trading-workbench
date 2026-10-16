@@ -2,6 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 from market_data_service.app import create_app, create_app_from_env
 from market_data_service.contracts import Quote
@@ -10,8 +11,14 @@ from market_data_service.state import QuoteStore
 
 
 class _RedisRuntime:
-    def __init__(self, *, ping_error: Exception | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        ping_error: Exception | None = None,
+        get_error: Exception | None = None,
+    ) -> None:
         self.ping_error = ping_error
+        self.get_error = get_error
 
     async def ping(self) -> bool:
         if self.ping_error is not None:
@@ -20,6 +27,8 @@ class _RedisRuntime:
 
     async def get(self, name: str):
         del name
+        if self.get_error is not None:
+            raise self.get_error
         return None
 
     async def aclose(self) -> None:
@@ -156,6 +165,23 @@ def test_readiness_returns_503_when_redis_is_unavailable() -> None:
     assert response.status_code == 503
     assert response.json()["status"] == "not_ready"
     assert response.json()["redis"] == "unavailable"
+
+
+def test_quote_endpoint_reports_redis_outage_and_recovers() -> None:
+    redis_runtime = _RedisRuntime(get_error=RedisConnectionError("redis down"))
+    client = TestClient(
+        create_app(store=RedisQuoteStore(redis_runtime), redis_client=redis_runtime),
+        raise_server_exceptions=False,
+    )
+
+    unavailable = client.get("/v1/quotes/AAPL.US")
+    redis_runtime.get_error = None
+    recovered = client.get("/v1/quotes/AAPL.US")
+
+    assert unavailable.status_code == 503
+    assert unavailable.json()["detail"] == "live quote service unavailable"
+    assert recovered.status_code == 404
+    assert recovered.json()["detail"] == "quote not available"
 
 
 def test_websocket_stream_emits_requested_quote() -> None:
