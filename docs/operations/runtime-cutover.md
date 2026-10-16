@@ -109,7 +109,7 @@ authoritative workflow run: https://github.com/runchengxie/quant-trading-workben
 production URL: https://trading-research-dashboard.xiaowang01.workers.dev
 GitHub Pages URL: https://runchengxie.github.io/quant-trading-workbench/
 production data date verification: Pages and Worker `/data.json` both returned `generatedAt: 2026-10-16`, HTTP 200, non-empty stock data
-schedule activation PR/SHA: this PR / recorded at merge
+schedule activation PR/SHA: #41 / `5d4bfe65c85cb661a865852ce203b523bc0dcc7a`
 authoritative deployment smoke: passed in run #38917305897
 ```
 
