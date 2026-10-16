@@ -56,7 +56,7 @@ manual modes: shadow | authoritative
 
 本 PR 将定时 `SCHEDULE_MODE` 从 `shadow` 改为 `authoritative`。第一次定时运行作为运行检查，不再是切换门槛。
 
-切换提交：`601819b9c574010da62ec626b427f230734a13c0`；authoritative run、公开数据日期和部署 smoke 均已记录。Pages 和 Worker 的 `/data.json` 均返回 `generatedAt: 2026-10-16`、HTTP 200 和非空快照。旧仓库冻结 PR 已分别合并：Dashboard #44，merge SHA `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`；Niu Men #22，merge SHA `cbeea806239500b0aaea1d8b47f5010938bb7d86`。调度激活 PR/SHA 在合并后补录。
+切换提交：`601819b9c574010da62ec626b427f230734a13c0`；authoritative run、公开数据日期和部署 smoke 均已记录。Pages 和 Worker 的 `/data.json` 均返回 `generatedAt: 2026-10-16`、HTTP 200 和非空快照。调度激活 PR #41 的 merge SHA 为 `5d4bfe65c85cb661a865852ce203b523bc0dcc7a`。旧仓库冻结 PR 已分别合并：Dashboard #44，merge SHA `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`；Niu Men #22，merge SHA `cbeea806239500b0aaea1d8b47f5010938bb7d86`。
 
 2026-08-28 手动静态 demo 检查曾确认根页面可访问，`/data.json` 包含宝莱特与 `TSLA.US`，TSLA 有日线和分时数据。这是历史静态部署证据，不能替代正式切换或连续观察。
 
