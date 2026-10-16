@@ -2,11 +2,11 @@
 
 [English page](runtime-cutover.md)
 
-本页记录 M6 从旧运行时切换到 `quant-trading-workbench` 的事实、验收与回滚边界。未实际执行的门槛保留 `not-yet-run`，workflow 定义不构成生产证据。
+本页记录 Dashboard 快照实验迁移到 `quant-trading-workbench` 的事实、验收与回滚边界。Dashboard 是实验界面，不构成投资建议。workflow 定义本身不等于部署证据。
 
 ## 当前职责与状态
 
-Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维护。手动部署及研究快照验证、发布入口可用。工作日数据生成仍使用 monorepo 的 `shadow` 流程，目标是经过验收的 `authoritative` 流程；旧 workflow 只用于回滚。实时行情服务已经合并到 `apps/market-data-service/`，生产验证仍待完成。Niu Men 发布也使用 monorepo 路径，旧入口只用于回滚。
+Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维护。工作日数据生成仍使用 `shadow`，还需完成一次 `authoritative` 运行。旧 workflow 只用于回滚。实时行情服务的生产验收是独立事项，不是静态快照实验的前置条件。Niu Men 发布也使用 monorepo 路径，旧入口只用于回滚。
 
 ## 固定回滚提交
 
@@ -31,13 +31,13 @@ scheduled mode: shadow
 manual modes: shadow | authoritative
 ```
 
-`shadow` 保留审核后的 fallback，生成候选数据，验证静态快照并拒绝运行时回退，运行前端测试与构建，写入 runtime manifest，并上传本次运行的 Actions evidence artifact；GitHub Pages 和 Cloudflare 发布步骤都会跳过。GitHub Pages artifact 上传与部署仅在 `authoritative` 模式运行。2026-10-15 及之前的历史 shadow 运行曾发布到公开地址 `https://runchengxie.github.io/quant-trading-workbench/`；本次 workflow 修复不会删除或更改现有 Pages 站点。shadow 不会推送 Git 仓库或提交原始缓存，manifest 中的 `publicUrl` 为 `null`。`authoritative` 仍要求 Cloudflare token、account 和公开 URL，部署同一候选数据并运行 smoke 检查。
+`shadow` 保留审核后的 fallback，生成候选数据，验证静态快照并拒绝运行时回退，运行前端测试与构建，写入 runtime manifest，并上传本次运行的 Actions evidence artifact；GitHub Pages 和 Cloudflare 发布步骤都会跳过。GitHub Pages artifact 上传与部署仅在 `authoritative` 模式运行。PR #38 之前的 shadow 运行曾发布到公开地址 `https://runchengxie.github.io/quant-trading-workbench/`；修复不会删除或更改现有 Pages 站点。shadow 不会推送 Git 仓库或提交原始缓存，manifest 中的 `publicUrl` 为 `null`。`authoritative` 仍要求 Cloudflare token、account 和公开 URL，部署同一候选数据并运行 smoke 检查。
 
-`publish-research-snapshot.yml` 区分同仓与跨仓 artifact。同仓使用 `github.token`，跨仓必须配置 `RESEARCH_ARTIFACT_TOKEN`，权限仅需满足目标仓库 Actions 读取和 `actions/download-artifact`。当前真实跨仓下载证据为 `not-yet-run`，凭据名称或 workflow 定义不能证明私有跨仓访问成功。切换前应记录真实成功运行，或采用不依赖跨仓下载的 monorepo 本地发布路径。
+研究快照发布 workflow 区分同仓与跨仓 artifact。跨仓认证和研究发布有各自的验收，不是 Dashboard 快照实验切换的门槛。
 
 ## 切换前验收
 
-连续 5 个交易日的定时 shadow 运行已完成，逐次核对了 workflow 步骤与 evidence artifact。候选数据和 manifest 的 `generatedAt` 日期一致，静态快照校验、运行时安全检查、前端测试与构建均通过。Cloudflare authoritative 部署步骤按 shadow 模式跳过。
+目前有六次定时 shadow 成功完成候选生成、快照校验、运行时安全检查、前端测试与构建，并上传了 evidence artifact。这些是有用的预检证据，不要求连续观察五天。10 月 16 日及之前的运行使用 PR #38 合并前的 workflow，因此 shadow 也发布了 GitHub Pages。PR #38 已限制后续 shadow 发布 Pages，但没有删除现有页面。以下 shadow 运行均跳过 Cloudflare 部署。
 
 | 交易日 | Workflow run | 候选 `generatedAt` 日期 | Artifact | 验证与构建 | 结果 |
 | --- | --- | --- | --- | --- | --- |
@@ -46,32 +46,28 @@ manual modes: shadow | authoritative
 | 3 | [2026-10-13 run 38364174737](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38364174737) | 2026-10-13 | `dashboard-runtime-candidate-38364174737` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
 | 4 | [2026-10-14 run 38520333682](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38520333682) | 2026-10-14 | `dashboard-runtime-candidate-38520333682` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
 | 5 | [2026-10-15 run 38689167134](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38689167134) | 2026-10-15 | `dashboard-runtime-candidate-38689167134` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
+| 6 | [2026-10-16 run 38857741547](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38857741547) | 2026-10-16（Pages 已核对） | `dashboard-runtime-candidate-38857741547` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
 
-以下验收仍为 `not-yet-run`，只有对应运行存在时才填写：
-
-- 至少 2 次同日 shadow 与生产页面对照，保存 artifact、生产页面与数据日期、结果。
-- 至少 3 个研究发布周期，保存 monorepo 或研究提交、发布路径和结果。其中至少 1 次必须真实发布，dry run 不能替代全部周期。
+10 月 16 日运行使用提交 `aa1595077a1978a65fb6aa2cd77a5e4c47abd330`，早于 PR #38 于 `4d596af1adb3ec2a3a7e4c4699cfa611200986cf` 合并。该次 Pages 发布不能证明 Cloudflare authoritative 部署成功。检查时 Pages 的 `/data.json` 返回 `generatedAt: 2026-10-16`。
 
 ## 切换当天
 
 当前状态为 `not-yet-run`，按以下顺序执行：
 
-1. 从已审核、包含 shadow workflow 的 monorepo `main` 开始。
+1. 从已审核、包含 PR #38 shadow 发布门控的 monorepo `main` 开始。
 2. 手动运行 `dashboard-report.yml` 的 `authoritative` 模式。
 3. 要求数据生成、安全验证、前端测试与构建、Cloudflare 部署及 smoke 全部成功。
-4. 核对生产 URL 的数据日期与候选一致。
-5. 合并旧 Dashboard 的冻结 PR。
-6. 只有 monorepo 研究发布权威性已得到证明，才能合并旧 Niu Men 发布冻结 PR。
-7. 单独通过小 PR 将定时 `SCHEDULE_MODE` 从 `shadow` 改为 `authoritative`。
-8. 再次运行仓库与部署 smoke，记录提交、运行 URL 和结果。
+4. 核对配置的公开 URL 数据日期与候选一致，并确认审核过的静态 fallback 行为。
+5. 单独通过小 PR 将定时 `SCHEDULE_MODE` 从 `shadow` 改为 `authoritative`。
+6. 记录运行、数据日期、部署 URL 和 SHA。这个封闭实验不要求切换后连续观察五天。
 
-切换提交、authoritative run、数据日期验证、旧仓库冻结合并 SHA、调度激活 PR/SHA 和切换后 smoke 均尚未记录。文档中的 Worker 地址是 `https://trading-research-dashboard.xiaowang01.workers.dev`，实际验收仍须核对运行中配置的 `CLOUDFLARE_PUBLIC_URL`。
+切换提交、authoritative run、数据日期验证、调度激活 PR/SHA 和部署 smoke 尚未记录。旧仓库冻结 PR 已分别合并：Dashboard #44，merge SHA `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`；Niu Men #22，merge SHA `cbeea806239500b0aaea1d8b47f5010938bb7d86`。文档中的 Worker 地址是 `https://trading-research-dashboard.xiaowang01.workers.dev`，实际验收仍须核对运行中配置的 `CLOUDFLARE_PUBLIC_URL`。
 
 2026-08-28 手动静态 demo 检查曾确认根页面可访问，`/data.json` 包含宝莱特与 `TSLA.US`，TSLA 有日线和分时数据。这是历史静态部署证据，不能替代正式切换或连续观察。
 
-## 切换后观察
+## 切换后
 
-在 issue #19 追踪验收，要求切换后连续 5 个交易日的 authoritative 定时运行，逐日记录部署与 smoke、旧运行时无写入、结果。当前逐日记录均为 `not-yet-run`。切换后的 monorepo 研究发布和实时服务缺失时的静态 fallback 验证也均为 `not-yet-run`。
+本实验不要求连续观察五个交易日。检查第一次后续定时运行是否通过相同的运行时安全验证；若失败则回滚到 shadow。研究发布和实时行情服务的验收是独立事项。
 
 ## 回滚条件与步骤
 
@@ -81,10 +77,10 @@ manual modes: shadow | authoritative
 2. 使用旧 Dashboard 手动回滚 workflow，确认值必须为 `legacy-dashboard-rollback`。
 3. 必要时检出上表固定的 Dashboard SHA。
 4. 研究发布单独使用审核后的 Niu Men 回滚路径，必要时检出上表 Niu Men SHA。
-5. 保留失败 artifact 与运行 URL，记录事故后再恢复 shadow 观察。
+5. 保留失败 artifact 与运行 URL，记录事故后再继续实验。
 
 Dashboard 回滚不自动将研究发布权转回旧 Niu Men 仓库。
 
 ## M6b 退役边界
 
-issue #19 的观察完成后，在 issue #21 追踪退役。旧本地检出已不是正常开发依赖；远端归档或只读仍是独立 GitHub 操作。旧 README 已说明维护统一到 monorepo，正常 workflow 仅作为回滚入口。这不等同于 GitHub Archive。M6b 的观察与调用方审计仍独立验收，见[退役说明](legacy-retirement.md)。
+此前引用的 #19 和 #21 实际是 PR，不是 M6/M6b 跟踪 issue（#19 已关闭，#21 已合并）。M6b 退役和外部调用方审计仍是独立工作；旧本地检出在完成调用方审计后可移除，远端归档或只读仍是独立 GitHub 操作。详见[退役说明](legacy-retirement.md)。
