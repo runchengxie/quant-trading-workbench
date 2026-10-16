@@ -165,12 +165,14 @@ jobs:
         run: pnpm --filter wu-t0-dashboard-web build
 
       - name: Upload Dashboard to GitHub Pages
+        if: ${{ steps.mode.outputs.mode == 'authoritative' }}
         uses: actions/upload-pages-artifact@v5
         with:
           path: apps/dashboard/web/dist
 
       - name: Deploy Dashboard to GitHub Pages
         id: deployment
+        if: ${{ steps.mode.outputs.mode == 'authoritative' }}
         uses: actions/deploy-pages@v5
 
       - name: Validate authoritative deployment configuration
