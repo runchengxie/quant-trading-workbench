@@ -3,6 +3,8 @@
   "private": true,
   "packageManager": "pnpm@11.17.0",
   "scripts": {
+    "api:generate": "pnpm --filter @quant-trading-workbench/api-client run generate",
+    "api:check": "pnpm --filter @quant-trading-workbench/api-client run check",
     "web:test": "pnpm --filter wu-t0-dashboard-web test",
     "web:build": "pnpm --filter wu-t0-dashboard-web build"
   }

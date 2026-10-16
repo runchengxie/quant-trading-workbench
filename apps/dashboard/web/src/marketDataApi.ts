@@ -1,10 +1,7 @@
-import type { LiveQuote } from './types.ts';
+import type { components } from '@quant-trading-workbench/api-client';
 
-export interface MarketDataHealth {
-  status: 'ok';
-  collectorConfigured: boolean;
-  liveDataConfigured: boolean;
-}
+export type MarketDataHealth = components['schemas']['HealthResponse'];
+type MarketDataQuote = components['schemas']['QuoteResponse'];
 
 export type MarketDataServiceStatus = 'static' | 'online' | 'unknown';
 
@@ -36,9 +33,9 @@ function isMarketDataHealth(value: unknown): value is MarketDataHealth {
   );
 }
 
-function isLiveQuote(value: unknown): value is LiveQuote {
+function isLiveQuote(value: unknown): value is MarketDataQuote {
   if (typeof value !== 'object' || value === null) return false;
-  const quote = value as Partial<LiveQuote>;
+  const quote = value as Partial<MarketDataQuote>;
   return (
     typeof quote.symbol === 'string' &&
     typeof quote.price === 'number' &&
@@ -71,7 +68,7 @@ export async function fetchMarketDataQuote(
   baseUrl: string,
   symbol: string,
   fetchImpl: FetchLike = fetch,
-): Promise<LiveQuote> {
+): Promise<MarketDataQuote> {
   const value = await requestJson(
     `${normalizeBaseUrl(baseUrl)}/v1/quotes/${encodeURIComponent(symbol)}`,
     fetchImpl,

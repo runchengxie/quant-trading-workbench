@@ -24,6 +24,7 @@
     "tailwindcss": "^4.1.12"
   },
   "devDependencies": {
+    "@quant-trading-workbench/api-client": "workspace:*",
     "@tailwindcss/vite": "^4.1.12",
     "@playwright/test": "1.62.1",
     "@types/react": "^19.2.18",

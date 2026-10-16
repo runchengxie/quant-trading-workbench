@@ -1,0 +1,16 @@
+{
+  "name": "@quant-trading-workbench/api-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "generate": "node scripts/generate-openapi-types.mjs --write",
+    "check": "node scripts/generate-openapi-types.mjs --check",
+    "test": "node --test scripts/*.test.mjs"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3"
+  }
+}
