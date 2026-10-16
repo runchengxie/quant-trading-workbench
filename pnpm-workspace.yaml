@@ -1,2 +1,3 @@
 packages:
   - "apps/dashboard/web"
+  - "packages/api-client"

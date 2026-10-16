@@ -47,19 +47,20 @@ WS  /v1/stream?symbols=AAPL,MSFT
 
 REST endpoint 使用命名的 Pydantic response models，因此 FastAPI 的 `/openapi.json` 和 `/docs` 会暴露稳定的 `HealthResponse`、`ReadyResponse`、`QuoteResponse`、`BarResponse` 和 `BarsResponse` schema。WebSocket payload 保持现有格式。
 
-需要把 OpenAPI schema 交给 codegen 或其他工具时，可以在 `apps/market-data-service` 目录执行：
+仓库中的 TypeScript REST response types 由该本地 OpenAPI schema 生成。生成器通过 FastAPI app 导出 schema，不会请求生产服务。可在仓库根目录运行：
 
 ```bash
-uv run --locked python scripts/export_openapi.py /tmp/market-data-openapi.json
+pnpm api:generate
+pnpm api:check
 ```
 
-不传输出路径时，schema 写到 stdout：
+如需单独查看机器可读 schema，可在仓库根目录执行：
 
 ```bash
-uv run --locked python scripts/export_openapi.py
+uv run --locked --package market-data-service python apps/market-data-service/scripts/export_openapi.py /tmp/market-data-openapi.json
 ```
 
-当前 Dashboard 的 REST client 仍保持很小，只负责 health/quote 边界和运行时 payload 校验。后续切换到 OpenAPI-to-TypeScript codegen 时，应以这里导出的 schema 为唯一输入，避免 Python 与 TypeScript 分别手工维护同一份接口契约。
+生成的 declarations 位于 `packages/api-client`，仅供 TypeScript 编译期使用。Dashboard REST client 仍负责 URL、HTTP 错误和运行时 payload 校验；生成器不会接管 fetch、校验逻辑或 WebSocket payload。
 
 ## 测试
 

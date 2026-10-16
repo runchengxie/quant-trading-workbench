@@ -100,6 +100,9 @@ jobs:
       - name: Install Dashboard Web dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check generated API client types
+        run: pnpm api:check
+
       - name: Run Dashboard Web unit tests
         run: pnpm --filter wu-t0-dashboard-web test
 

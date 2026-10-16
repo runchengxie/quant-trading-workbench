@@ -45,10 +45,11 @@ health 检查失败不会设置 Dashboard 的页面级错误状态，也不会�
 
 前端的 `src/marketDataApi.ts` 集中处理行情 REST URL、HTTP 错误和运行时 payload 校验。目前提供 health 和 quote client；现有 WebSocket streaming 逻辑保持独立。
 
-FastAPI REST endpoint 使用命名 response models。需要生成机器可读契约时，在 `apps/market-data-service` 执行：
+FastAPI REST endpoint 使用命名 response models。TypeScript REST response types 由根目录的 `packages/api-client` 生成并纳入漂移检查：
 
 ```bash
-uv run --locked python scripts/export_openapi.py /tmp/market-data-openapi.json
+pnpm api:generate
+pnpm api:check
 ```
 
-后续引入 OpenAPI-to-TypeScript codegen 时，应从该 schema 生成 client/types，并逐步替代手写 REST 类型；不要让 codegen 接管静态研究 snapshot 的独立 JSON Schema 契约。
+生成器使用本地 FastAPI app 导出的 OpenAPI schema，不请求生产 endpoint。生成包只提供编译期类型，REST wrapper 与运行时 payload 校验保持在 `src/marketDataApi.ts`；静态研究 snapshot 的独立 JSON Schema 契约不由此生成。

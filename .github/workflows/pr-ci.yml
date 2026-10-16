@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "apps/dashboard/**"
+      - "apps/market-data-service/**"
+      - "packages/api-client/**"
       - "packages/research-core/**"
       - "packages/niu-men-line-strategy/**"
       - "package.json"
@@ -43,6 +45,18 @@ jobs:
 
       - name: Install web dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Set up uv for OpenAPI export
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+          python-version: "3.11"
+
+      - name: Check generated API client types
+        run: pnpm api:check
+
+      - name: Test API schema exporter handling
+        run: pnpm --filter @quant-trading-workbench/api-client test
 
       - name: Test Dashboard web
         run: pnpm --filter wu-t0-dashboard-web test
