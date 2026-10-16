@@ -29,6 +29,16 @@ def test_dashboard_report_schedule_is_shadow_only_until_cutover() -> None:
     assert "npx --yes wrangler@4 deploy --config apps/dashboard/wrangler.jsonc" in text
 
 
+def test_dashboard_report_only_deploys_to_github_pages_in_authoritative_mode() -> None:
+    text = (_root() / ".github/workflows/dashboard-report.yml").read_text(encoding="utf-8")
+
+    upload_step = text.split("      - name: Upload Dashboard to GitHub Pages", 1)[1].split("      - name:", 1)[0]
+    deploy_step = text.split("      - name: Deploy Dashboard to GitHub Pages", 1)[1].split("      - name:", 1)[0]
+
+    assert "if: ${{ steps.mode.outputs.mode == 'authoritative' }}" in upload_step
+    assert "if: ${{ steps.mode.outputs.mode == 'authoritative' }}" in deploy_step
+
+
 def test_shadow_path_has_no_repository_write_permission() -> None:
     text = (_root() / ".github/workflows/dashboard-report.yml").read_text(encoding="utf-8")
 

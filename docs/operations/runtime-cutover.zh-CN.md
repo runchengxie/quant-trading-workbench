@@ -31,7 +31,7 @@ scheduled mode: shadow
 manual modes: shadow | authoritative
 ```
 
-`shadow` 保留审核后的 fallback，生成候选数据，验证静态快照并拒绝运行时回退，运行前端测试与构建，写入 runtime manifest，上传证据 artifact。workflow 授予 `contents: read`、`pages: write` 和 `id-token: write` 权限，以便把构建结果发布到公开的 GitHub Pages 地址 `https://runchengxie.github.io/quant-trading-workbench/`，应将其视为公开的 shadow 预览。shadow 不会推送 Git 仓库或提交原始缓存。Cloudflare authoritative 部署与 smoke 步骤在 shadow 模式下会跳过，manifest 中的 `publicUrl` 为 `null`。`authoritative` 另外要求 Cloudflare token、account 和公开 URL，部署同一候选数据并运行 smoke 检查。
+`shadow` 保留审核后的 fallback，生成候选数据，验证静态快照并拒绝运行时回退，运行前端测试与构建，写入 runtime manifest，并上传本次运行的 Actions evidence artifact；GitHub Pages 和 Cloudflare 发布步骤都会跳过。GitHub Pages artifact 上传与部署仅在 `authoritative` 模式运行。2026-10-15 及之前的历史 shadow 运行曾发布到公开地址 `https://runchengxie.github.io/quant-trading-workbench/`；本次 workflow 修复不会删除或更改现有 Pages 站点。shadow 不会推送 Git 仓库或提交原始缓存，manifest 中的 `publicUrl` 为 `null`。`authoritative` 仍要求 Cloudflare token、account 和公开 URL，部署同一候选数据并运行 smoke 检查。
 
 `publish-research-snapshot.yml` 区分同仓与跨仓 artifact。同仓使用 `github.token`，跨仓必须配置 `RESEARCH_ARTIFACT_TOKEN`，权限仅需满足目标仓库 Actions 读取和 `actions/download-artifact`。当前真实跨仓下载证据为 `not-yet-run`，凭据名称或 workflow 定义不能证明私有跨仓访问成功。切换前应记录真实成功运行，或采用不依赖跨仓下载的 monorepo 本地发布路径。
 

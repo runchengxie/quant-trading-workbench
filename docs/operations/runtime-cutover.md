@@ -67,7 +67,7 @@ preserve reviewed fallback
 → upload evidence artifact
 ```
 
-The workflow grants `contents: read`, `pages: write` and `id-token: write` so it can publish the built site to the public GitHub Pages URL `https://runchengxie.github.io/quant-trading-workbench/`; treat that as a public shadow preview. Shadow mode does not push to the Git repository or commit raw caches. The Cloudflare authoritative deployment and smoke steps are skipped in shadow mode, and its manifest has `publicUrl: null`.
+Shadow mode only builds and uploads a run-specific Actions evidence artifact; it skips both GitHub Pages and Cloudflare publication. The GitHub Pages artifact upload and deployment steps run only in `authoritative` mode. Historical shadow runs through 2026-10-15 did publish to the public GitHub Pages URL `https://runchengxie.github.io/quant-trading-workbench/`; this workflow fix does not remove or change that existing Pages site. Shadow mode does not push to the Git repository or commit raw caches, and its runtime manifest has `publicUrl: null`.
 
 ## Cross-repository research artifact authentication
 
@@ -82,7 +82,7 @@ A workflow definition or secret name alone does not prove cross-private-reposito
 
 ## Pre-cutover shadow evidence
 
-Five successful consecutive trading-day scheduled shadow runs are required. The first five verified runs are recorded below. Each run completed candidate generation, snapshot validation, runtime safety checks, frontend tests/build, GitHub Pages publication and evidence upload. The manifest and candidate data report the same `generatedAt` date. Cloudflare deployment steps were skipped because these were shadow runs.
+Five successful consecutive trading-day scheduled shadow runs are required. The first five verified runs are recorded below. Each run completed candidate generation, snapshot validation, runtime safety checks, frontend tests/build, GitHub Pages publication and evidence upload. The manifest and candidate data report the same `generatedAt` date. Cloudflare deployment steps were skipped because these were shadow runs. The GitHub Pages publication was unintended for shadow mode and was gated to `authoritative` mode by the workflow fix that followed these runs.
 
 | Trading day | Workflow run | Candidate `generatedAt` date | Artifact | Validation/build | Result |
 | --- | --- | --- | --- | --- | --- |
