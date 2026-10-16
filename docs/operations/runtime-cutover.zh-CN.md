@@ -6,7 +6,7 @@
 
 ## 当前职责与状态
 
-Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维护。工作日数据生成仍使用 `shadow`，还需完成一次 `authoritative` 运行。旧 workflow 只用于回滚。实时行情服务的生产验收是独立事项，不是静态快照实验的前置条件。Niu Men 发布也使用 monorepo 路径，旧入口只用于回滚。
+Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维护。工作日定时任务已切换为 `authoritative`，并由成功的手动运行完成验收；这个封闭实验不要求连续五天观察。旧 workflow 只用于回滚。实时行情服务的生产验收是独立事项，不是静态快照实验的前置条件。Niu Men 发布也使用 monorepo 路径，旧入口只用于回滚。
 
 ## 固定回滚提交
 
@@ -78,4 +78,4 @@ Dashboard 回滚不自动将研究发布权转回旧 Niu Men 仓库。
 
 ## M6b 退役边界
 
-此前引用的 #19 和 #21 实际是 PR，不是 M6/M6b 跟踪 issue（#19 已关闭，#21 已合并）。M6b 退役和外部调用方审计仍是独立工作；旧本地检出在完成调用方审计后可移除，远端归档或只读仍是独立 GitHub 操作。详见[退役说明](legacy-retirement.md)。
+此前引用的 #19 和 #21 实际是 PR，不是 M6/M6b 跟踪 issue（#19 已关闭，#21 已合并）。M6 runtime cutover 已完成。M6b 退役还需决定是否关闭旧 Worker 和放弃旧 workflow 回滚能力；GitHub、本机 cron 与 systemd 调用方审计未发现实际调用。详见[退役说明](legacy-retirement.md)。

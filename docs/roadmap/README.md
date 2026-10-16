@@ -8,14 +8,14 @@
 | --- | --- | --- | --- |
 | M0 | monorepo 基础和协作规则 | 已完成 | 根目录治理、目录边界、手动质量检查和独立 PR/worktree 规则已建立 |
 | M1 | Dashboard 历史导入 | 已完成 | 代码位于 `apps/dashboard/`，由本仓库构建和部署 |
-| M1 | Niu Men 历史导入 | 已完成 | 源码、测试和 producer 位于 `packages/niu-men-line-strategy/`；旧仓库 runtime authority 等待 M6 freeze |
+| M1 | Niu Men 历史导入 | 已完成 | 源码、测试和 producer 位于 `packages/niu-men-line-strategy/`；旧仓库已冻结，runtime authority 已随 M6 切换到 monorepo |
 | M2 | `research-core` 共享包 | 已完成 | canonical Niu Men contract、generic strategy snapshot、fixture 和校验工具已进入共享包 |
 | M2b | 跨策略快照契约 | 已完成 | `trading_research.strategy_snapshot.v1` 已落地，Niu Men 保留旧 wire adapter，R-Breaker 有 generic producer/consumer |
 | M3 | Python workspace 和 package 依赖 | 已完成 | 根 `uv.lock` 是唯一锁文件，成员通过 uv workspace 统一解析 |
 | M4 | 研究快照自动发布 | 已完成 | Niu Men publisher 与 R-Breaker artifact→generator→独立 snapshot PR 链路均已进入 `main`；R-Breaker 已完成一次真实 Tushare publication |
 | M5 | 实时行情服务 | 基础 Redis 集成已验证，故障恢复与部署验证待执行 | Redis 7 CI 已验证实际读写、旧报价拒写、心跳、Pub/Sub 和同步 collector 写入；Redis/provider 断线恢复、WebSocket 重连、readiness 和静态 fallback 故障验证仍未执行 |
-| M6 | runtime cutover | 5 个交易日 shadow gate 已通过，生产切换待执行 | 10 月 9 日及 12 至 15 日五次定时运行均完成数据校验、测试、构建和公开 GitHub Pages 发布；Cloudflare authoritative 部署未执行。人工同日对比、研究发布、authoritative cutover 和切换后观察仍需真实证据 |
-| M6b | legacy freeze / retirement | 本地 checkout 可清理，远程 archive 待执行 | 两个旧仓库已改为 rollback-only；本地目录删除不影响 monorepo，远程 archive 仍需外部调用方审计和真实 cutover 证据 |
+| M6 | runtime cutover | 已完成 | 手动 authoritative run #38917305897 在 SHA `601819b9c574010da62ec626b427f230734a13c0` 上通过；Pages 与 Cloudflare Worker 均返回非空数据，`generatedAt` 为 2026-10-16。工作日 schedule 已设为 authoritative；本封闭实验不要求五天观察 |
+| M6b | legacy freeze / retirement | 外部调用方审计基本完成，归档决定待定 | 两个旧仓库的常规定时/推送入口已冻结。GitHub 代码搜索、本机 cron、落盘和已加载的 systemd 单元均未发现实际调用方。旧 `wu-t0` Worker 仍提供 2026-08-28 的陈旧快照，需决定是否下线及是否放弃旧回滚入口。Workbench 中指向旧 Niu Men 的默认 artifact 仓库已移除，来源需由操作者显式选择 |
 
 ## 已完成能力
 
@@ -106,36 +106,21 @@ R-Breaker 已完成一次真实 Tushare publication，当前发布链路包括�
 
 仓库内的静态 `data.json` 也承担公开 demo 的基础数据。当前快照包含宝莱特和 TSLA，数据允许滞后于最新交易日，但页面功能应保持可演示。Worker 不会在浏览器端自动调用 yfinance 或 Alpaca，更新数据需要重新生成快照并部署。
 
-### M6：完成 runtime cutover
+### M6：runtime cutover 已完成
 
-shadow workflow 已合并到 `main`，但 production cutover 仍未完成。真实 gate 记录在 [`../operations/runtime-cutover.md`](../operations/runtime-cutover.md)；开发层不再把“workflow 存在”当作生产切换完成。
-
-切换前必须具备：
-
-1. 5 个连续交易日 scheduled shadow run 成功（已满足，证据见 [运行切换手册](../operations/runtime-cutover.zh-CN.md)）。
-2. 至少 2 次 shadow artifact 与同日旧 production 页面人工核对。
-3. research publication 至少 3 个记录周期，并且至少 1 次是真实 publication。
-4. cross-repository artifact authentication 有真实成功证据，或生产链路不再依赖该跨仓库下载。
-5. 手动 `authoritative` run 完成 candidate generation、validation、build、Cloudflare deploy 和 smoke。
-6. production URL 的 data date 与 candidate 一致。
-
-只有上述 gate 满足后才允许：
-
-1. 合并 legacy Dashboard 仓库的 freeze PR #44。
-2. 在 monorepo research publication authority 证明后合并 legacy Niu Men 仓库的 freeze PR #22。
-3. 独立小 PR 把 scheduled `SCHEDULE_MODE` 从 `shadow` 改为 `authoritative`。
-4. 进入 post-cutover 连续交易日 observation。
+手动 authoritative run #38917305897 已通过 candidate generation、validation、build、Cloudflare deploy 和 smoke；Pages 与 Worker 均提供非空数据，数据日期与候选一致。工作日 schedule 已切换为 authoritative。实验是封闭环境中的 Dashboard 快照实验，不要求连续五天观察，也不构成投资建议。完整记录见 [运行切换手册](../operations/runtime-cutover.md)。
 
 ### M6b：legacy retirement
 
-维护权声明、freeze 与 archive 是三个不同阶段。维护权声明已在两个旧仓库 README 完成；freeze/archive 仍需真实运行和调用方证据。
+维护权声明、freeze 与 archive 是三个不同阶段。维护权声明已在两个旧仓库 README 完成，freeze 已合并，M6 authoritative cutover 也已完成。GitHub-visible 调用审计、本机 cron 和 systemd 运行态均未发现调用方。归档前仍须决定是否关闭旧 Worker，以及是否放弃旧 workflow 回滚能力。
 
 freeze 后旧仓库成为 rollback mirror；真正 archive 还需要：
 
-- M6 post-cutover observation 通过；
-- Dashboard/Niu Men 分别满足 no-write 观察窗口；
-- GitHub-visible caller audit；
-- cron/systemd/Hermes/self-hosted runner/local research runner 等 external caller audit；
+- Dashboard/Niu Men 冻结后的 no-write 状态已通过 GitHub Actions 记录核对；
+- GitHub-visible caller audit 未发现旧仓库的实际代码调用方；
+- cron、落盘 systemd 配置和已加载的 systemd 用户单元均未发现引用；
+- `wu-t0-trading-dashboard` 的 Cloudflare Worker 仍公开响应，但 `data.json` 停留在 2026-08-28；需决定是否关闭该旧站点及回滚能力；
+- Workbench 研究快照 workflow 不再默认使用旧 Niu Men 仓库；实际 artifact 来源由操作者显式指定；
 - rollback SHA 和 procedure 可验证；
 - repository setting 实际变成 archived 后才能记录 `archived`。
 

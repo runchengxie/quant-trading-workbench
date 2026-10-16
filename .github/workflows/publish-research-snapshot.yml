@@ -4,9 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       artifact_repository:
-        description: "Repository of the research run that uploaded the snapshot artifact"
+        description: "Repository that produced the artifact; select explicitly because no default producer is configured"
         required: true
-        default: "runchengxie/niu-men-line-strategy"
       artifact_run_id:
         description: "Run id of the research run"
         required: true
