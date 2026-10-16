@@ -49,4 +49,4 @@ Redis 保存三类数据：
 5. 检查 Dashboard 的 `VITE_MARKET_DATA_URL` 是否指向服务 origin。
 6. 如果浏览器请求 `/healthz` 报跨域错误，检查 Dashboard origin 是否已加入 `MARKET_DATA_CORS_ORIGINS`。
 
-本地单元测试使用 fake Redis。真实 Redis、provider 断开、重连和故障降级仍需要在集成环境验证。
+本地单元测试使用 fake Redis。GitHub Actions 的 `Market data integration` 工作流使用 Redis 7 实例，验证了实际读写、旧报价拒写、心跳、Pub/Sub 和同步 collector 写入。最近一次成功运行是 [2026-09-04 run 33895291188](https://github.com/runchengxie/quant-trading-workbench/actions/runs/33895291188)。Redis/provider 断线恢复、WebSocket 重连、部署环境 readiness 和静态 fallback 故障验证仍待完成。

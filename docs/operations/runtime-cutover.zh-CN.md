@@ -31,15 +31,24 @@ scheduled mode: shadow
 manual modes: shadow | authoritative
 ```
 
-`shadow` 保留审核后的 fallback，生成候选数据，验证静态快照并拒绝运行时回退，运行前端测试与构建，写入 runtime manifest，上传证据 artifact。它只有 `contents: read`，没有部署、推送或提交原始缓存的路径。`authoritative` 另外要求 Cloudflare token、account 和公开 URL，部署同一候选数据并运行 smoke 检查。
+`shadow` 保留审核后的 fallback，生成候选数据，验证静态快照并拒绝运行时回退，运行前端测试与构建，写入 runtime manifest，上传证据 artifact。workflow 授予 `contents: read`、`pages: write` 和 `id-token: write` 权限，以便把构建结果发布到公开的 GitHub Pages 地址 `https://runchengxie.github.io/quant-trading-workbench/`，应将其视为公开的 shadow 预览。shadow 不会推送 Git 仓库或提交原始缓存。Cloudflare authoritative 部署与 smoke 步骤在 shadow 模式下会跳过，manifest 中的 `publicUrl` 为 `null`。`authoritative` 另外要求 Cloudflare token、account 和公开 URL，部署同一候选数据并运行 smoke 检查。
 
 `publish-research-snapshot.yml` 区分同仓与跨仓 artifact。同仓使用 `github.token`，跨仓必须配置 `RESEARCH_ARTIFACT_TOKEN`，权限仅需满足目标仓库 Actions 读取和 `actions/download-artifact`。当前真实跨仓下载证据为 `not-yet-run`，凭据名称或 workflow 定义不能证明私有跨仓访问成功。切换前应记录真实成功运行，或采用不依赖跨仓下载的 monorepo 本地发布路径。
 
 ## 切换前验收
 
-以下记录均为 `not-yet-run`，只有对应运行存在时才填写：
+连续 5 个交易日的定时 shadow 运行已完成，逐次核对了 workflow 步骤与 evidence artifact。候选数据和 manifest 的 `generatedAt` 日期一致，静态快照校验、运行时安全检查、前端测试与构建均通过。Cloudflare authoritative 部署步骤按 shadow 模式跳过。
 
-- 连续 5 个交易日的定时 shadow 成功记录，逐日保存 workflow run、候选数据日期、artifact、验证与构建结果。
+| 交易日 | Workflow run | 候选 `generatedAt` 日期 | Artifact | 验证与构建 | 结果 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [2026-10-09 run 37898533589](https://github.com/runchengxie/quant-trading-workbench/actions/runs/37898533589) | 2026-10-09 | `dashboard-runtime-candidate-37898533589` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
+| 2 | [2026-10-12 run 38217075308](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38217075308) | 2026-10-12 | `dashboard-runtime-candidate-38217075308` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
+| 3 | [2026-10-13 run 38364174737](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38364174737) | 2026-10-13 | `dashboard-runtime-candidate-38364174737` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
+| 4 | [2026-10-14 run 38520333682](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38520333682) | 2026-10-14 | `dashboard-runtime-candidate-38520333682` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
+| 5 | [2026-10-15 run 38689167134](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38689167134) | 2026-10-15 | `dashboard-runtime-candidate-38689167134` | 快照校验、测试和构建通过 | shadow 通过，已发布 GitHub Pages，Cloudflare 步骤跳过 |
+
+以下验收仍为 `not-yet-run`，只有对应运行存在时才填写：
+
 - 至少 2 次同日 shadow 与生产页面对照，保存 artifact、生产页面与数据日期、结果。
 - 至少 3 个研究发布周期，保存 monorepo 或研究提交、发布路径和结果。其中至少 1 次必须真实发布，dry run 不能替代全部周期。
 

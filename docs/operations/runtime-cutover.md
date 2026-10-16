@@ -67,7 +67,7 @@ preserve reviewed fallback
 → upload evidence artifact
 ```
 
-Shadow mode has `contents: read` and no deploy, push or raw-cache commit path. Authoritative mode additionally requires Cloudflare token/account/public URL, deploys the same candidate and runs the deployment smoke check.
+The workflow grants `contents: read`, `pages: write` and `id-token: write` so it can publish the built site to the public GitHub Pages URL `https://runchengxie.github.io/quant-trading-workbench/`; treat that as a public shadow preview. Shadow mode does not push to the Git repository or commit raw caches. The Cloudflare authoritative deployment and smoke steps are skipped in shadow mode, and its manifest has `publicUrl: null`.
 
 ## Cross-repository research artifact authentication
 
@@ -82,15 +82,15 @@ A workflow definition or secret name alone does not prove cross-private-reposito
 
 ## Pre-cutover shadow evidence
 
-Five successful consecutive trading-day scheduled shadow runs are required. Fill a row only after the corresponding run exists.
+Five successful consecutive trading-day scheduled shadow runs are required. The first five verified runs are recorded below. Each run completed candidate generation, snapshot validation, runtime safety checks, frontend tests/build, GitHub Pages publication and evidence upload. The manifest and candidate data report the same `generatedAt` date. Cloudflare deployment steps were skipped because these were shadow runs.
 
-| Trading day | Workflow run | Candidate data date | Artifact | Validation/build | Result |
+| Trading day | Workflow run | Candidate `generatedAt` date | Artifact | Validation/build | Result |
 | --- | --- | --- | --- | --- | --- |
-| 1 | not-yet-run | not-yet-run | not-yet-run | not-yet-run | not-yet-run |
-| 2 | not-yet-run | not-yet-run | not-yet-run | not-yet-run | not-yet-run |
-| 3 | not-yet-run | not-yet-run | not-yet-run | not-yet-run | not-yet-run |
-| 4 | not-yet-run | not-yet-run | not-yet-run | not-yet-run | not-yet-run |
-| 5 | not-yet-run | not-yet-run | not-yet-run | not-yet-run | not-yet-run |
+| 1 | [2026-10-09 run 37898533589](https://github.com/runchengxie/quant-trading-workbench/actions/runs/37898533589) | 2026-10-09 | `dashboard-runtime-candidate-37898533589` | snapshot validation, tests and build passed | shadow passed, GitHub Pages deployed, Cloudflare skipped |
+| 2 | [2026-10-12 run 38217075308](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38217075308) | 2026-10-12 | `dashboard-runtime-candidate-38217075308` | snapshot validation, tests and build passed | shadow passed, GitHub Pages deployed, Cloudflare skipped |
+| 3 | [2026-10-13 run 38364174737](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38364174737) | 2026-10-13 | `dashboard-runtime-candidate-38364174737` | snapshot validation, tests and build passed | shadow passed, GitHub Pages deployed, Cloudflare skipped |
+| 4 | [2026-10-14 run 38520333682](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38520333682) | 2026-10-14 | `dashboard-runtime-candidate-38520333682` | snapshot validation, tests and build passed | shadow passed, GitHub Pages deployed, Cloudflare skipped |
+| 5 | [2026-10-15 run 38689167134](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38689167134) | 2026-10-15 | `dashboard-runtime-candidate-38689167134` | snapshot validation, tests and build passed | shadow passed, GitHub Pages deployed, Cloudflare skipped |
 
 Required manual same-day comparisons with current production:
 
