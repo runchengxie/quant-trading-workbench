@@ -47,6 +47,25 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
+      - name: Preserve deployed market data snapshot
+        id: market_snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$CLOUDFLARE_PUBLIC_URL" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "No live market snapshot URL is configured; publishing is skipped to avoid restoring the checked-in fallback." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          curl --fail --silent --show-error --connect-timeout 5 --max-time 20 \
+            "$CLOUDFLARE_PUBLIC_URL/data.json" \
+            -o "$RUNNER_TEMP/deployed-data.json" || {
+              echo "Unable to load the deployed market data snapshot" >&2
+              exit 1
+            }
+          cp "$RUNNER_TEMP/deployed-data.json" apps/dashboard/web/public/data.json
+          echo "available=true" >> "$GITHUB_OUTPUT"
+
       - name: Install uv and Python
         uses: astral-sh/setup-uv@v10.0.1
         with:
@@ -70,9 +89,13 @@ jobs:
         run: |
           set -euo pipefail
           for universe in etf stocks; do
-            if [ -n "$CLOUDFLARE_PUBLIC_URL" ] && curl --fail --silent --show-error --connect-timeout 5 --max-time 20 \
-              "$CLOUDFLARE_PUBLIC_URL/agent/$universe/latest.json" \
-              -o "$RUNNER_TEMP/previous-agent-$universe.json"; then
+            if [ -n "$CLOUDFLARE_PUBLIC_URL" ]; then
+              curl --fail --silent --show-error --connect-timeout 5 --max-time 20 \
+                "$CLOUDFLARE_PUBLIC_URL/agent/$universe/latest.json" \
+                -o "$RUNNER_TEMP/previous-agent-$universe.json" || {
+                  echo "Unable to load the previous deployed Agent portfolio state" >&2
+                  exit 1
+                }
               echo "Loaded the previous deployed $universe Agent portfolio state."
             else
               cp "apps/dashboard/web/public/agent/$universe/latest.json" "$RUNNER_TEMP/previous-agent-$universe.json"
@@ -167,12 +190,14 @@ jobs:
         run: pnpm --filter wu-t0-dashboard-web build
 
       - name: Upload Dashboard to GitHub Pages
+        if: ${{ steps.market_snapshot.outputs.available == 'true' }}
         uses: actions/upload-pages-artifact@v5
         with:
           path: apps/dashboard/web/dist
 
       - name: Deploy Dashboard to GitHub Pages
         id: deployment
+        if: ${{ steps.market_snapshot.outputs.available == 'true' }}
         uses: actions/deploy-pages@v5
 
       - name: Upload Agent paper portfolio artifact
@@ -191,12 +216,12 @@ jobs:
           retention-days: 30
 
       - name: Validate Cloudflare deployment configuration
-        if: ${{ env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.CLOUDFLARE_PUBLIC_URL != '' }}
+        if: ${{ steps.market_snapshot.outputs.available == 'true' && env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.CLOUDFLARE_PUBLIC_URL != '' }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN"
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_PUBLIC_URL"
 
       - name: Deploy paper portfolio Dashboard
-        if: ${{ env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.CLOUDFLARE_PUBLIC_URL != '' }}
+        if: ${{ steps.market_snapshot.outputs.available == 'true' && env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.CLOUDFLARE_PUBLIC_URL != '' }}
         run: npx --yes wrangler@4.127.1 deploy --config apps/dashboard/wrangler.jsonc

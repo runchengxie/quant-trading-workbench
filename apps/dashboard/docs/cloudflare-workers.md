@@ -8,7 +8,7 @@ Dashboard 是静态 React 应用。仓库保留经过验证的静态行情快照
 
 <https://trading-research-dashboard.xiaowang01.workers.dev>
 
-Worker 名称为 `trading-research-dashboard`。旧的 `wu-t0-trading-dashboard` Worker 和历史 Pages 站点仍是独立部署，只有经过明确清理后才应停用。
+Worker 名称为 `trading-research-dashboard`。旧的 `wu-t0-trading-dashboard` Worker 的 `workers.dev` 与预览入口已关闭。历史 GitHub Pages 页面仍公开保留，但当前生产入口是上面的 authoritative Worker。
 
 ## 静态快照发布基线
 

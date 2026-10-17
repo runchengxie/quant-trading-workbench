@@ -12,7 +12,7 @@
 | Last-known-good rollback SHA | `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e` |
 | Freeze PR | [#44](https://github.com/runchengxie/wu-t0-trading-dashboard/pull/44), merged 2026-08-28; `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4` |
 | Production writes | scheduled/push triggers removed; manual rollback requires exact acknowledgement |
-| External caller audit | GitHub code search, local cron, systemd config/loaded units, and repository self-hosted runners found no active caller; legacy Cloudflare Worker still responds HTTP 200 with `data.json` generated 2026-08-28, versus 2026-10-16 on the current Worker |
+| External caller audit | GitHub code search, local cron, systemd config/loaded units, and repository self-hosted runners found no active caller; before shutdown, the legacy Worker returned HTTP 200 with `data.json` generated 2026-08-28, versus 2026-10-16 on the current Worker |
 | Archive decision | archived after confirming no active caller and documenting the loss of the old manual rollback workflow |
 | Archive operation | completed 2026-10-17; GitHub reports `archived=true` |
 | Legacy Worker route | `workers.dev` and preview routes disabled via Cloudflare API; read-back confirms both are disabled |
@@ -26,7 +26,7 @@
 | Current retirement state | `workflow-frozen / archived` |
 | Last-known-good rollback SHA | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` |
 | Freeze PR | [#22](https://github.com/runchengxie/niu-men-line-strategy/pull/22), merged 2026-08-28; `cbeea806239500b0aaea1d8b47f5010938bb7d86` |
-| Scheduled Dashboard publication | replaced by explicit rollback-only workflow |
+| Scheduled Dashboard publication | legacy workflow was rollback-only before archive; unavailable after archive |
 | Research publication cycles | no qualifying real cycles recorded here |
 | External caller audit | GitHub code search and repository self-hosted runners found no caller; Workbench's stale default artifact repository was removed, and source must now be selected explicitly; no rollback-publication workflow runs or artifact producers found |
 | Archive decision | archived; no GitHub code caller, rollback-publication run, local scheduled caller, or artifact producer was found; this disables its manual rollback workflow |

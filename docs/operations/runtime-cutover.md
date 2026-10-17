@@ -10,10 +10,10 @@ This runbook records the dashboard snapshot experiment's migration to `quant-tra
 | --- | --- | --- | --- |
 | Dashboard source/build config | monorepo | monorepo | active |
 | Manual Dashboard deploy | monorepo | monorepo | available |
-| Weekday market-data generation + deploy | monorepo shadow workflow | monorepo authoritative workflow | authoritative schedule activated after successful manual run |
+| Weekday market-data generation + deploy | monorepo `Dashboard runtime report` | monorepo `Dashboard runtime report` | scheduled mode is `authoritative`; publishes to Cloudflare Workers and GitHub Pages |
 | Reviewed static `data.json` fallback | monorepo | monorepo | active |
 | Research snapshot validation/publication | monorepo | monorepo | available |
-| Legacy Niu Men Dashboard publication | monorepo publication path | monorepo publication path | legacy workflow rollback-only |
+| Legacy Niu Men Dashboard publication | archived repository | monorepo artifact publisher | legacy workflow unavailable; current publication runs from the monorepo |
 | Realtime market-data service | `apps/market-data-service/` | monorepo service | separate acceptance; not required by the static snapshot experiment |
 
 ## Exact rollback SHAs
@@ -22,8 +22,8 @@ These SHAs were read from the legacy repositories immediately before preparing t
 
 | Repository | Last-known-good legacy SHA | Freeze state |
 | --- | --- | --- |
-| `runchengxie/wu-t0-trading-dashboard` | `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e` | freeze merged; rollback mirror |
-| `runchengxie/niu-men-line-strategy` | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` | freeze merged; rollback mirror |
+| `runchengxie/wu-t0-trading-dashboard` | `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e` | frozen and archived; retained for historical traceability |
+| `runchengxie/niu-men-line-strategy` | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` | frozen and archived; retained for historical traceability |
 
 Do not move these rollback markers merely because the legacy branches receive documentation/freeze commits. A later rollback decision must explicitly choose whether it wants the pre-freeze legacy implementation SHA above or a reviewed freeze commit.
 
@@ -40,7 +40,7 @@ schedule: 0 1 * * 1-5
 normal production writes: disabled by merged freeze PR #44
 ```
 
-The legacy workflow is manual and requires explicit rollback acknowledgement. It is not a normal data-generation or deployment path. Freeze PR #44 merged on 2026-08-28 at `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`.
+Freeze PR #44 merged on 2026-08-28 at `dd24ac3da3ef45f5ad57ddbf5271b64c4ac8a0f4`. The repository is now archived, so its historical manual rollback workflow cannot be dispatched; its Worker routes are disabled. The old SHA above is retained for traceability, not as an active deployment mechanism.
 
 ### Monorepo shadow workflow
 
@@ -119,7 +119,7 @@ A manual static-demo check on 2026-08-28 found the root page reachable and `/dat
 
 ## After cutover
 
-The experiment does not require five consecutive observation days. Review the first scheduled run for regressions and roll back to shadow if it fails the same runtime safety checks. Research publication and realtime service acceptance remain separate workstreams.
+The experiment does not require five consecutive observation days. As of 2026-10-17, the latest successful authoritative deployment is manual run [#38917305897](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897), which passed the deployment smoke check and served non-empty data dated 2026-10-16. October 17 is Saturday, so no weekday market-data run is expected that day; the next scheduled run is Monday, October 19. Direct public-endpoint checks from the current audit environment were blocked by its network proxy, so the latest direct-response evidence remains the successful October 16 smoke check. Research publication and realtime service acceptance remain separate workstreams.
 
 ## Rollback triggers
 
@@ -133,16 +133,14 @@ Evaluate rollback when any of these occurs:
 
 ## Rollback procedure
 
-1. Revert the schedule-activation PR so the monorepo schedule returns to shadow.
-2. Use the legacy Dashboard manual rollback workflow with exact acknowledgement `legacy-dashboard-rollback`.
-3. When needed, checkout Dashboard legacy SHA `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e`.
-4. For research publication rollback, use the independently reviewed Niu Men rollback path and, when needed, legacy SHA `1be7f725772fa824ce34e2bb833867cb4c3e9fcb`.
+1. Stop further scheduled publications by reverting schedule-activation PR #41, which returns scheduled runs to `shadow`.
+2. If the latest Cloudflare Worker deployment is the regression, roll it back from the monorepo using `pnpm dlx wrangler@4 rollback --config apps/dashboard/wrangler.jsonc`. Wrangler creates a new deployment from the previous Worker version; review the selected version before confirming. See [Cloudflare Wrangler rollback](https://developers.cloudflare.com/workers/wrangler/commands/workers/#rollback).
+3. Verify the restored Worker with `apps/dashboard/scripts/check_deployment.py` and inspect the retained run artifact. If the previous Worker version is not the desired snapshot, revert the responsible monorepo change and deploy the reviewed snapshot through the monorepo workflow.
+4. Research snapshots roll back independently: restore the prior reviewed `apps/dashboard/web/public/research.json` through a monorepo PR, then validate and deploy it.
 5. Preserve failing workflow artifacts/run URLs and record the incident before resuming the experiment.
 
-Dashboard runtime rollback does not automatically transfer research publication authority back to the legacy Niu Men repository.
+The archived legacy repositories and their manual workflows are not part of the current rollback path. Dashboard runtime rollback does not change research snapshot ownership.
 
 ## M6b retirement boundary
 
-The previously cited #19 and #21 are pull requests, not M6/M6b tracking issues (#19 is closed; #21 is merged). M6b retirement and external-caller audits remain separate work. The local legacy checkouts are no longer required for normal development and can be removed after a caller audit; remote repository archive/read-only decisions remain an external GitHub operation.
-
-The two legacy READMEs now state that maintenance is unified in this monorepo, and their normal workflows are rollback-only. This is separate from a GitHub Archive operation. The M6b observation and caller-audit requirements remain independent gates; see [`legacy-retirement.md`](legacy-retirement.md).
+The previously cited #19 and #21 are pull requests, not M6/M6b tracking issues (#19 is closed; #21 is merged). M6b retirement and caller audits are complete: both legacy repositories are archived, the old Dashboard Worker routes are disabled, and no active callers were found in GitHub, local cron, systemd, or repository self-hosted runners. The historical GitHub Pages page remains public by user choice. See [`legacy-retirement.md`](legacy-retirement.md) for the audit evidence and exact rollback boundaries.

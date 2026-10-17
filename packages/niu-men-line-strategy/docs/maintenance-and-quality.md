@@ -47,6 +47,6 @@ Ruff 检查错误、导入、常见简化规则、类型升级提示和项目约
 
 组合级报告使用统一自然日期窗口。逐标的报告中的 `fold_id` 只表示每只股票自己的第 N 个窗口，不能直接当作自然日期序列。
 
-## 跨仓库边界
+## Monorepo 维护边界
 
-`wu-t0-trading-dashboard` 是独立的兄弟仓库，不是本项目的 Git submodule。研究快照由本项目生成，Dashboard 只消费 `web/public/research.json`。两边应分别建分支、测试和 PR。
+Dashboard 与 Niu Men 目前位于同一个 monorepo；`runchengxie/wu-t0-trading-dashboard` 和 `runchengxie/niu-men-line-strategy` 两个旧仓库已归档。研究快照由 `packages/niu-men-line-strategy/` 生成，经根目录 publisher 更新 `apps/dashboard/web/public/research.json`；变更在同一仓库分别验证并通过 PR 合入。

@@ -1,15 +1,15 @@
 # Dashboard 研究快照契约
 
-`niu-men-line-strategy` 继续负责研究计算和回测，Dashboard 只消费版本化 JSON 快照。这个边界避免前端重复实现 NML、行业上下文、滚动样本外和成交约束逻辑。
+`packages/niu-men-line-strategy/` 负责研究计算和回测，Dashboard 只消费版本化 JSON 快照。两者现在由同一 monorepo 维护；旧的 `niu-men-line-strategy` 和 `wu-t0-trading-dashboard` 仓库已归档。这个边界避免前端重复实现 NML、行业上下文、滚动样本外和成交约束逻辑。
 
 ## 文件
 
 - `schemas/research-snapshot.schema.json` 定义对外 JSON 契约。
 - `scripts/export_dashboard_snapshot.py` 把全市场 OOS 产物压缩成前端可直接读取的快照。
-- `scripts/publish_dashboard_snapshot.py` 是 CI 和本地发布使用的稳定入口，负责输入检查、v2 校验和原子写入。
-- 推荐把输出文件复制或提交为 Dashboard 的 `web/public/research.json`。
+- `scripts/publish_dashboard_snapshot.py` 是本地单文件输出工具，负责输入检查、v2 校验和原子写入；创建 Dashboard 更新 PR 使用根目录 publisher。
+- 推荐先把输出写到临时目录，验证后由根目录 publisher 更新 `apps/dashboard/web/public/research.json`。
 
-当前契约版本是 `niu_men.research_snapshot.v2`。历史 v1 快照仍可作为历史产物保留，Dashboard 在迁移期同时兼容 v1 和 v2。
+当前契约版本是 `niu_men.research_snapshot.v2`。历史 v1 快照仍可作为历史产物保留，Dashboard adapter 仍兼容 v1 和 v2。
 
 ## 输入
 
@@ -22,40 +22,33 @@ OOS runner 在运行时把 `research_commit` 写入 manifest。默认值来自�
 ## 示例
 
 ```bash
+# 在 packages/niu-men-line-strategy/ 目录执行
 uv run python scripts/export_dashboard_snapshot.py \
   --oos-json /path/to/niu_men_industry_context_oos_full_market_expanded_20260825.json \
   --research-manifest artifacts/etf-industry-context-20260825/manifest.json \
-  --output ../wu-t0-trading-dashboard/web/public/research.json
+  --output /tmp/research.json
 ```
 
 测试或可复现发布可额外传入 `--snapshot-generated-at 2026-08-25T10:15:00Z`。正常发布不传该参数，导出器会记录实际 UTC 生成时间。
 
 导出器不会把本机绝对目录写入公开快照，只保留资产文件名和语义来源。
 
-## 发布命令与跨仓库 PR
+## 本地发布与 artifact PR
 
 发布时优先使用稳定入口：
 
 ```bash
-uv run python scripts/publish_dashboard_snapshot.py \
-  --oos-json /path/to/niu_men_industry_context_oos_full_market_expanded_20260825.json \
-  --research-manifest artifacts/etf-industry-context-20260825/manifest.json \
-  --output /tmp/research.json
+# 在 monorepo 根目录执行
+uv run --locked --extra dev python scripts/publish_research_snapshot.py \
+  --snapshot /tmp/research.json \
+  --open-pr
 ```
 
-发布命令在写文件前检查两个输入文件存在，调用现有 v2 exporter，拒绝非 v2 结果和空 OOS 记录，并通过临时文件原子替换输出。质量状态为 `warning` 的历史或 provenance 不完整快照仍然可以被真实发布，但不会被改写成 `pass`。
+根目录 publisher 在写入 `apps/dashboard/web/public/research.json` 前执行 Niu Men canonical schema 和 provenance consistency 校验；任何失败都保留上一份有效静态快照。
 
-仓库中的 `.github/workflows/publish-dashboard-snapshot.yml` 提供跨仓库 PR handoff。它目前通过 `workflow_dispatch` 接收研究运行产物路径，因为完整 OOS CSV/JSON 不是本仓库的 tracked 文件；未来研究运行 workflow 可以复用同一发布步骤。运行前需要在 Niu Men 仓库配置 `DASHBOARD_REPOSITORY_TOKEN`，该 token 需要对 Dashboard 仓库具有创建分支和 Pull Request 的权限。
+GitHub Actions 的 `Publish research snapshot` workflow 也可以从一次已完成的研究运行下载快照 artifact，再打开更新当前仓库的 PR。启动时必须显式填写 artifact 所属仓库、run ID 和 artifact 名；跨仓库 artifact 需要 `RESEARCH_ARTIFACT_TOKEN`。旧 Niu Men 仓库已经归档，不再是有效的新运行 artifact 来源。
 
-示例输入：
-
-```text
-oos_json: artifacts/oos-run/full-market.json
-research_manifest: artifacts/data-platform/manifest.json
-dashboard_repository: runchengxie/wu-t0-trading-dashboard
-```
-
-workflow 会生成并验证 `research.json`，复制到 Dashboard 的 `web/public/research.json`，然后打开一个 `automation/niu-men-dashboard-snapshot` 分支 PR。它不会直接推送 Dashboard `main`。如果输入缺失或快照校验失败，PR 步骤不会执行；Dashboard 继续使用仓库中上一次成功的快照或显示缺失状态。
+PR 合并后，再由 Dashboard runtime/deploy workflow 验证并发布。
 
 ## 契约资产同步
 
@@ -66,38 +59,38 @@ workflow 会生成并验证 `research.json`，复制到 Dashboard 的 `web/publi
 3. `invalid_missing_required.json`，缺少必填字段的非法样例。
 4. `unsupported_version.json`，schema 版本不受支持的非法样例。
 
-发布 workflow 会把 schema 和 fixture 一并复制到 Dashboard 的 reviewable PR：
+根目录的契约同步测试会检查 Niu Men、Research Core 与 Dashboard 中受版本控制的 schema 和 fixture 副本：
 
 ```text
-schemas/research-snapshot.schema.json
-  -> Dashboard/schemas/research-snapshot.schema.json
+packages/niu-men-line-strategy/schemas/research-snapshot.schema.json
+  <-> packages/research-core/src/research_core/schemas/research-snapshot.schema.json
+  <-> apps/dashboard/schemas/research-snapshot.schema.json
 
-tests/fixtures/research_snapshot/*.json
-  -> Dashboard/tests/fixtures/research_snapshot/*.json
+packages/niu-men-line-strategy/tests/fixtures/research_snapshot/*.json
+  <-> packages/research-core/tests/fixtures/research_snapshot/*.json
+  <-> apps/dashboard/tests/fixtures/research_snapshot/*.json
 ```
 
-Niu Men 发布命令在写入输出前使用同一份 schema 校验快照。Dashboard 的 Web CI 再验证复制后的 schema、fixture 和 `web/public/research.json`。任一输入或契约校验失败时都不会创建 Dashboard PR。
-
-在契约稳定阶段，Niu Men 和 Dashboard 仍然是两个独立的活动仓库。此次同步只改变可审查的发布资产，不把 Niu Men 的策略 Python 内部发布为 Dashboard 依赖。
+Dashboard 的 Web CI 再验证 `apps/dashboard/web/public/research.json`。任一输入或契约校验失败时都不会创建更新 PR。旧的跨仓库同步流程已由 monorepo publisher 取代；策略 Python 内部仍不是 Dashboard 前端的依赖。
 
 ## 与 Dashboard 的发布边界
 
 发布链路固定为：
 
 ```text
-niu-men-line-strategy 的 OOS 产物
+packages/niu-men-line-strategy 的 OOS 产物
   -> export_dashboard_snapshot.py
-  -> wu-t0-trading-dashboard/web/public/research.json
-  -> Dashboard 静态构建
+  -> apps/dashboard/web/public/research.json
+  -> Dashboard 检查与静态部署
 ```
 
-Niu Men 仓库负责研究计算、快照字段、schema 和来源追踪。Dashboard 只负责读取快照、渲染研究结果以及在快照不可用时保持行情页面可用。两个仓库不互相导入对方的 Python 内部模块。
+Niu Men 包负责研究计算、快照字段、schema 和来源追踪。Dashboard 只负责读取快照、渲染研究结果以及在快照不可用时保持行情页面可用。前端不导入策略 Python 内部模块。
 
 发布前应依次完成：
 
-1. 在 Niu Men 仓库运行 OOS 和快照导出测试。
-2. 使用导出器把快照写入 Dashboard 的 `web/public/research.json`。
-3. 在 Dashboard 仓库运行 Web 单元测试、构建和浏览器 smoke check。
+1. 在 monorepo 根环境运行 Niu Men OOS 和快照导出测试。
+2. 使用共享 publisher 校验快照并创建更新 `apps/dashboard/web/public/research.json` 的 PR。
+3. 在同一 PR 中通过 Dashboard Web 单元测试、构建和适用的部署检查。
 4. 检查快照没有本机绝对路径，且 `schemaVersion` 保持为 `niu_men.research_snapshot.v2`。
 
 如果 `research.json` 缺失、返回非 JSON 或 schema 不受支持，Dashboard 应只在策略研究页显示相应状态，不能阻塞 `data.json` 的盘前和日内行情视图。v2 provenance 不完整时，研究新鲜度应显示为未知或警告，不得伪造为当前数据。

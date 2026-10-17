@@ -6,7 +6,7 @@
 
 Dashboard 的 M1 导入已经完成。本文件记录首次保留历史导入时使用的路径边界、排除规则和验证证据，方便后续追溯。
 
-Niu Men 不包含在这次 Dashboard 导入中，仍需要通过独立 PR 迁移。
+Niu Men 不包含在这次 Dashboard 首次导入中；之后已通过独立迁移进入 `packages/niu-men-line-strategy/`，目前由 monorepo 维护。Niu Men 首次导入边界见 [Niu Men 导入记录](niu-men-import.md)。
 
 ## 来源和回滚记录
 

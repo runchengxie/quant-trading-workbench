@@ -22,7 +22,7 @@ FastAPI 行情接口现在使用命名的 Pydantic response model，OpenAPI sche
 
 本次验证结果：Dashboard Python 测试 104 个通过，根目录测试 83 个通过，前端测试 49 个通过，前端生产构建通过，分享包检查确认不包含凭据、缓存、`node_modules` 或测试产物。
 
-本段记录 2026 年 8 月 27 日审计时的状态，后续已发生变化：Dashboard authoritative cutover 已完成，不要求五个交易日 shadow 观察；旧仓库归档仍待分别决定。Redis 故障注入、provider 故障与重连仍需真实环境验证，详见 [Runtime Cutover Runbook](../operations/runtime-cutover.md)。
+本段记录 2026 年 8 月 27 日审计时的状态，后续已发生变化：Dashboard authoritative cutover 已完成，不要求五个交易日 shadow 观察；两个旧仓库已归档，旧 Dashboard Worker 入口已关闭，历史 GitHub Pages 页面按用户选择保留公开。Redis 故障注入、provider 故障与重连仍需真实环境验证，详见 [Runtime Cutover Runbook](../operations/runtime-cutover.md)。
 
 本文记录 2026 年 8 月 27 日对仓库文档、测试和代码结构的审查结果。它区分已经修复的问题和仍需要单独安排的重构，避免把建议误读为已完成工作。
 
@@ -133,3 +133,13 @@ Python 审计还报告 `urllib3` 2.7.0 的 PYSEC-2026-4177、PYSEC-2026-4176 和
 Niu Men 覆盖率为 92%（门槛 80%）。其原有 snapshot exporter 未满足全包格式检查；本次仅格式化该文件，AST 前后相同，52 个文件的格式检查现已通过。完整外部依赖锁定清单的严格 Python 审计未发现已知漏洞。
 
 PR 质量检查现在也运行根目录 foundation 测试、边界检查和 Market Data Service 全部无凭据测试及 lint，`scripts/**`、`tests/**` 的变更会触发该检查。独立的真实 Redis integration workflow 保留原有隔离服务；普通 readiness 回归不再只依赖手动 foundation workflow。
+
+### 退役后复核
+
+当前主分支复跑 `uv run --locked --extra dev pytest -q tests/test_foundation.py`，55 项通过；`uv run --locked python scripts/check_foundation.py` 也通过。API client 六个精确路径的 allowlist 是 PR #44 修复后的有意限制；新增未审阅文件仍由测试拒绝，因此本次无需再改规则。
+
+旧仓库归档及旧 Worker 入口关闭状态已记录在[退役记录](../operations/legacy-retirement.md)。authoritative Worker 控制面仍启用。2026-10-17 的 Agent paper portfolio workflow #38987305011 后来成功部署了同一 Worker；检查该次运行源码里的静态 `data.json` 发现日期为 2026-08-28，因此该发布很可能把 Worker 最新运行数据覆盖成旧仓库快照。当前审计环境无法直连公开 Worker URL，不能直接确认响应体；但 Cloudflare 部署时间、成功的 Agent 发布步骤及其输入快照共同表明这是实际发布风险。
+
+已修复 Agent workflow：发布前必须从当前 Worker 取回 `data.json` 并保留到构建产物；没有配置公开 URL 时跳过 Pages/Worker 发布；已配置但取回市场快照或旧 Agent 状态失败时则失败退出，不再以旧静态种子静默降级。回归测试覆盖市场快照保留和两个发布目标的门控。PR 合并后需手动运行 authoritative Dashboard runtime workflow 恢复最新实验快照，并以工作流烟测和 Cloudflare 部署记录复核。此前最近一次确认非空数据日期为 2026-10-16，来自 [Dashboard runtime report #38917305897](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897)。
+
+本次文档审计修正了旧 Worker/Pages 状态、M6b 归档状态、Niu Men 导入状态和跨仓库快照发布说明。Superpowers 计划与设计文件保留为历史记录，不改写当时的决策和执行步骤。

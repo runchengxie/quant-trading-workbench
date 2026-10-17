@@ -3,7 +3,7 @@
 | 来源 | 源仓库 | 首次导入基准 commit | 当前角色 |
 | --- | --- | --- | --- |
 | Dashboard | `runchengxie/wu-t0-trading-dashboard` | `8f809f58b2cdb4b6c6dee8e8d4c767a6ea30a114` | 已导入 `apps/dashboard/`，当前由 monorepo 维护 |
-| Niu Men | `runchengxie/niu-men-line-strategy` | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` | M1 历史保留导入正在独立分支准备；runtime cutover 前仍由原仓库维护 |
+| Niu Men | `runchengxie/niu-men-line-strategy` | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` | 已导入 `packages/niu-men-line-strategy/`，目前由 monorepo 维护；源仓库已冻结并归档 |
 
 这些 SHA 记录的是首次保留历史导入时选定的源基准，用于追溯导入边界和必要时对照原仓库内容。它们不代表源仓库未来永远停留在对应 commit。
 
