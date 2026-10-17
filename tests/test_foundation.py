@@ -32,7 +32,7 @@ def test_complete_foundation_reports_deleted_required_file(
     shutil.copytree(
         root,
         foundation,
-        ignore=shutil.ignore_patterns(".git", ".superpowers", ".venv", "__pycache__"),
+        ignore=shutil.ignore_patterns(".git", ".superpowers", ".venv", "__pycache__", "node_modules"),
     )
     (foundation / relative_path).unlink()
 
@@ -120,6 +120,8 @@ def test_superpowers_documents_can_be_added_during_m1(
     ("relative_path", "contents", "is_allowed"),
     (
         ("docs/zh-CN/getting-started.md", "# Getting started\n", True),
+        ("packages/api-client/src/generated/openapi.d.ts", "export {};\n", True),
+        ("packages/api-client/src/unreviewed.ts", "export {};\n", False),
         ("docs/zh-CN/unreviewed.md", "# Unreviewed\n", False),
         (
             "apps/dashboard/src/trading_research/dashboard/astock_tech.py",

@@ -116,3 +116,18 @@ market-data-service、Dashboard 和 Niu Men 的 `ty check` 当前通过。Dashbo
 ### 已知测试警告
 
 market-data-service 测试目前只剩 `websockets.legacy` 一条上游弃用警告。它来自 Alpaca SDK 的内部兼容层，项目没有直接导入。后续升级 Alpaca SDK 时，应重新评估是否能迁移到新的 websockets API。
+
+## 2026-10-17 工作区审计
+
+本次保持 `niu_men.research_snapshot.v2`、Market Data Service OpenAPI 和生成的 API client 不变，修复了以下已复现的问题：
+
+- 配置 collector 后，Redis 心跳读取失败会使 `/readyz` 返回 500。现在返回既有结构的 503，并标记 Redis 不可用、collector 过期。测试覆盖 ping 同时失败和仅心跳读取失败，且检查故障恢复后的状态。
+- foundation 检查遗漏已经提交的 API client 文件，导致当前仓库检查及三个根测试失败。现在只登记六个既有路径，新增测试同时保留未审阅文件的拒绝行为。
+- 发布脚本为设置源码导入路径而产生 Ruff E402。将安装函数的导入移至调用位置，保留现有入口和路径解析；发布预检测试继续通过。
+- `pnpm audit --audit-level high` 在锁文件中发现三个高危、一个中危记录。仅刷新兼容范围内的间接依赖：`fast-uri` 3.1.6 → 3.1.8，`source-map-js` 1.2.1 → 1.2.2。前者位于开发依赖 `ajv` 路径，涉及 GHSA-qw65-cvwx-89v3（修复范围 ≥3.1.7）和 GHSA-58mr-gqgx-xq4g（报告受影响版本 =3.1.6）；后者位于 Tailwind/Vite、PostCSS 构建路径，涉及 GHSA-68fv-2mgg-jv7q（修复范围 ≥1.2.2）。未改变直接依赖声明；更新后审计报告未发现已知漏洞。
+
+实际验证包括 Research Core、Dashboard、Niu Men、market-data-service 和根测试，Dashboard 覆盖率为 73%（门槛 60%）；API 生成一致性、API exporter 测试、111 项前端测试与 TypeScript/Vite 构建通过。隔离环境的 Dashboard 和 Niu Men 类型检查通过。默认沙盒下 TestClient 线程挂起、共享临时目录写入空间不足不作为源码失败处理；使用独立数据目录和允许线程运行的环境复验。生产 provider、真实 Redis 集成和浏览器 E2E 未在本次执行。
+
+Python 审计还报告 `urllib3` 2.7.0 的 PYSEC-2026-4177、PYSEC-2026-4176 和 PYSEC-2026-4175，修复版本均为 2.8.0。本次仅刷新该锁定间接依赖，不修改直接依赖范围。根测试复制仓库的 fixture 会重复复制 `node_modules`，安装前端依赖后可耗尽临时盘；现在仅在测试副本中排除该生成目录，源码边界检查和拒绝未审阅文件的断言继续执行。
+
+Niu Men 覆盖率为 92%（门槛 80%）。其原有 snapshot exporter 未满足全包格式检查；本次仅格式化该文件，AST 前后相同，52 个文件的格式检查现已通过。完整外部依赖锁定清单的严格 Python 审计未发现已知漏洞。

@@ -126,8 +126,13 @@ def create_app(
         if collector is not None:
             collector_status = "configured"
             if isinstance(quote_store, RedisQuoteStore):
-                heartbeat = await quote_store.get_heartbeat()
-                collector_status = "healthy" if heartbeat is not None else "stale"
+                try:
+                    heartbeat = await quote_store.get_heartbeat()
+                except RedisError:
+                    redis_status = "unavailable"
+                    collector_status = "stale"
+                else:
+                    collector_status = "healthy" if heartbeat is not None else "stale"
         ready = redis_status in {"ok", "disabled"} and collector_status in {
             "configured",
             "healthy",
