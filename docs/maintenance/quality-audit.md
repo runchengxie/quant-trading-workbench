@@ -131,3 +131,5 @@ market-data-service 测试目前只剩 `websockets.legacy` 一条上游弃用警
 Python 审计还报告 `urllib3` 2.7.0 的 PYSEC-2026-4177、PYSEC-2026-4176 和 PYSEC-2026-4175，修复版本均为 2.8.0。本次仅刷新该锁定间接依赖，不修改直接依赖范围。根测试复制仓库的 fixture 会重复复制 `node_modules`，安装前端依赖后可耗尽临时盘；现在仅在测试副本中排除该生成目录，源码边界检查和拒绝未审阅文件的断言继续执行。
 
 Niu Men 覆盖率为 92%（门槛 80%）。其原有 snapshot exporter 未满足全包格式检查；本次仅格式化该文件，AST 前后相同，52 个文件的格式检查现已通过。完整外部依赖锁定清单的严格 Python 审计未发现已知漏洞。
+
+PR 质量检查现在也运行根目录 foundation 测试、边界检查和 Market Data Service 全部无凭据测试及 lint，`scripts/**`、`tests/**` 的变更会触发该检查。独立的真实 Redis integration workflow 保留原有隔离服务；普通 readiness 回归不再只依赖手动 foundation workflow。

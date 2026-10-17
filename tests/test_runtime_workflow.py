@@ -61,3 +61,21 @@ def test_foundation_workflow_checks_dashboard_and_research_core_quality() -> Non
     assert "working-directory: apps/dashboard" in text
     assert "uv run --locked ruff check src scripts tests" in text
     assert "working-directory: packages/research-core" in text
+
+
+def test_pull_request_runs_root_and_market_service_unit_regressions() -> None:
+    text = (_root() / ".github/workflows/pr-ci.yml").read_text(encoding="utf-8")
+    root_step = text.split("      - name: Test workspace foundation", 1)[1].split(
+        "      - name:", 1
+    )[0]
+    market_step = text.split("      - name: Test and lint Market Data Service", 1)[1].split(
+        "      - name:", 1
+    )[0]
+    assert '      - "scripts/**"' in text
+    assert '      - "tests/**"' in text
+    assert "uv run --locked --extra dev pytest -q" in root_step
+    assert "working-directory: apps/market-data-service" in market_step
+    assert "uv run --locked pytest -q" in market_step
+    assert "-m integration" not in market_step
+    assert "uv run --locked ruff check src tests" in market_step
+    assert "secrets." not in root_step + market_step
