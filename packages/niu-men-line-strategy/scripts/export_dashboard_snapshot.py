@@ -110,7 +110,9 @@ def _fold_calendar(folds: pd.DataFrame, fold_id: int) -> dict[str, Any]:
 
     dated = fold[["symbol", "test_start", "test_end"]].copy()
     dated["symbol"] = dated["symbol"].astype("string")
-    dated["test_start"] = pd.to_datetime(dated["test_start"], errors="coerce").dt.strftime("%Y-%m-%d")
+    dated["test_start"] = pd.to_datetime(dated["test_start"], errors="coerce").dt.strftime(
+        "%Y-%m-%d"
+    )
     dated["test_end"] = pd.to_datetime(dated["test_end"], errors="coerce").dt.strftime("%Y-%m-%d")
     dated = dated.dropna(subset=["symbol", "test_start", "test_end"])
     dated = dated.drop_duplicates()
@@ -251,19 +253,19 @@ def _rolling_summaries(summary: pd.DataFrame, folds: pd.DataFrame) -> list[dict[
     records: list[dict[str, Any]] = []
     for row in summary.sort_values(["fold_id", "variant"]).to_dict(orient="records"):
         record = {
-                "variant": str(row["variant"]),
-                "foldId": int(row["fold_id"]),
-                "symbols": int(row["symbols"]),
-                "annualizedReturnMedian": _number(row.get("annualized_return_median")),
-                "sharpeMedian": _number(row.get("sharpe_median")),
-                "maxDrawdownMedian": _number(row.get("max_drawdown_median")),
-                "tradeCountMedian": _number(row.get("trade_count_median")),
-                "winRateMedian": _number(row.get("win_rate_median")),
-                "profitFactorMedian": _number(row.get("profit_factor_median")),
-                "entrySignalCount": _number(row.get("entry_signal_count")),
-                "sectorRetreatBlockCount": _number(row.get("sector_retreat_block_count")),
-                "priceRegimeBlockCount": _number(row.get("price_regime_block_count")),
-            }
+            "variant": str(row["variant"]),
+            "foldId": int(row["fold_id"]),
+            "symbols": int(row["symbols"]),
+            "annualizedReturnMedian": _number(row.get("annualized_return_median")),
+            "sharpeMedian": _number(row.get("sharpe_median")),
+            "maxDrawdownMedian": _number(row.get("max_drawdown_median")),
+            "tradeCountMedian": _number(row.get("trade_count_median")),
+            "winRateMedian": _number(row.get("win_rate_median")),
+            "profitFactorMedian": _number(row.get("profit_factor_median")),
+            "entrySignalCount": _number(row.get("entry_signal_count")),
+            "sectorRetreatBlockCount": _number(row.get("sector_retreat_block_count")),
+            "priceRegimeBlockCount": _number(row.get("price_regime_block_count")),
+        }
         for source, target in (("test_start", "startDate"), ("test_end", "endDate")):
             value = _optional_text(row.get(source))
             if value is not None:

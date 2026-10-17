@@ -19,8 +19,6 @@ DASHBOARD_SRC = REPO_ROOT / "apps" / "dashboard" / "src"
 DASHBOARD_PUBLIC = REPO_ROOT / "apps" / "dashboard" / "web" / "public"
 sys.path.insert(0, str(DASHBOARD_SRC))
 
-from trading_research.platform_publication import install_platform_publication
-
 PUBLICATION_PATHS = (
     Path("apps/dashboard/web/public/platform-publication.json"),
     Path("apps/dashboard/web/public/platform"),
@@ -37,6 +35,8 @@ def _run(command: list[str], *, cwd: Path = REPO_ROOT) -> str:
 
 
 def publish(bundle_root: Path) -> dict[str, object]:
+    from trading_research.platform_publication import install_platform_publication
+
     return install_platform_publication(bundle_root, DASHBOARD_PUBLIC)
 
 

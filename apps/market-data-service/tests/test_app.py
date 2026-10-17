@@ -1,3 +1,4 @@
+import json
 from datetime import UTC, datetime
 
 import pytest
@@ -19,6 +20,7 @@ class _RedisRuntime:
     ) -> None:
         self.ping_error = ping_error
         self.get_error = get_error
+        self.get_value: str | None = None
 
     async def ping(self) -> bool:
         if self.ping_error is not None:
@@ -29,7 +31,7 @@ class _RedisRuntime:
         del name
         if self.get_error is not None:
             raise self.get_error
-        return None
+        return self.get_value
 
     async def aclose(self) -> None:
         return None
@@ -207,3 +209,46 @@ def test_websocket_client_can_reconnect_and_receive_current_quote() -> None:
             store.put(Quote("AAPL.US", expected_price, datetime.now(UTC), "alpaca"))
         with client.websocket_connect("/v1/stream?symbols=AAPL") as websocket:
             assert websocket.receive_json()["price"] == expected_price
+
+
+@pytest.mark.parametrize("ping_unavailable", [False, True])
+def test_readiness_reports_collector_redis_outage_and_recovers(ping_unavailable) -> None:
+    redis = _RedisRuntime(
+        ping_error=RedisConnectionError("redis down") if ping_unavailable else None,
+        get_error=RedisConnectionError("redis down"),
+    )
+    client = TestClient(
+        create_app(
+            store=RedisQuoteStore(redis),
+            redis_client=redis,
+            collector=object(),
+        ),
+        raise_server_exceptions=False,
+    )
+
+    unavailable = client.get("/readyz")
+    assert unavailable.status_code == 503
+    assert unavailable.json() == {
+        "status": "not_ready",
+        "redis": "unavailable",
+        "collector": "stale",
+    }
+
+    redis.ping_error = None
+    redis.get_error = None
+    recovered = client.get("/readyz")
+    assert recovered.status_code == 503
+    assert recovered.json()["redis"] == "ok"
+    assert recovered.json()["collector"] == "stale"
+
+    redis.get_value = json.dumps(
+        {
+            "loopAt": datetime.now(UTC).isoformat(),
+            "lastSuccessAt": datetime.now(UTC).isoformat(),
+            "successCount": 1,
+            "failureCount": 0,
+        }
+    )
+    ready = client.get("/readyz")
+    assert ready.status_code == 200
+    assert ready.json() == {"status": "ready", "redis": "ok", "collector": "healthy"}

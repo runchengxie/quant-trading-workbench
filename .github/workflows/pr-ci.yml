@@ -12,6 +12,8 @@ on:
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
       - "pyproject.toml"
+      - "scripts/**"
+      - "tests/**"
       - "uv.lock"
       - ".github/workflows/pr-ci.yml"
   workflow_dispatch:
@@ -76,6 +78,18 @@ jobs:
         with:
           enable-cache: true
           python-version: "3.11"
+
+      - name: Test workspace foundation
+        run: |
+          uv run --locked --extra dev pytest -q
+          uv run --locked python scripts/check_foundation.py
+          uvx --from ruff==0.16.4 ruff check --select E4,E7,E9,F scripts tests
+
+      - name: Test and lint Market Data Service
+        working-directory: apps/market-data-service
+        run: |
+          uv run --locked pytest -q
+          uv run --locked ruff check src tests
 
       - name: Test and lint Research Core
         working-directory: packages/research-core
