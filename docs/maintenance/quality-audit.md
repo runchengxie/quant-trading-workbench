@@ -140,6 +140,8 @@ PR 质量检查现在也运行根目录 foundation 测试、边界检查和 Mark
 
 旧仓库归档及旧 Worker 入口关闭状态已记录在[退役记录](../operations/legacy-retirement.md)。authoritative Worker 控制面仍启用。2026-10-17 的 Agent paper portfolio workflow #38987305011 后来成功部署了同一 Worker；检查该次运行源码里的静态 `data.json` 发现日期为 2026-08-28，因此该发布很可能把 Worker 最新运行数据覆盖成旧仓库快照。当前审计环境无法直连公开 Worker URL，不能直接确认响应体；但 Cloudflare 部署时间、成功的 Agent 发布步骤及其输入快照共同表明这是实际发布风险。
 
-已修复 Agent workflow：发布前必须从当前 Worker 取回 `data.json` 并保留到构建产物；没有配置公开 URL 时跳过 Pages/Worker 发布；已配置但取回市场快照或旧 Agent 状态失败时则失败退出，不再以旧静态种子静默降级。回归测试覆盖市场快照保留和两个发布目标的门控。PR 合并后需手动运行 authoritative Dashboard runtime workflow 恢复最新实验快照，并以工作流烟测和 Cloudflare 部署记录复核。此前最近一次确认非空数据日期为 2026-10-16，来自 [Dashboard runtime report #38917305897](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897)。
+已修复 Agent workflow：发布前必须从当前 Worker 取回 `data.json` 并保留到构建产物；没有配置公开 URL 时跳过 Pages/Worker 发布；已配置但取回市场快照或旧 Agent 状态失败时则失败退出，不再以旧静态种子静默降级。回归测试覆盖市场快照保留和两个发布目标的门控。
+
+修复合并后已手动运行 [Dashboard runtime report #39000823904](https://github.com/runchengxie/quant-trading-workbench/actions/runs/39000823904)，authoritative 发布、Pages 部署和 `Verify authoritative deployment` 均通过。运行 manifest 确认 `dataGeneratedAt` 为 `2026-10-16`；Cloudflare 控制面显示该次 Worker deployment 于 `2026-10-17T03:59:45Z` 创建且版本流量为 100%。这是周六发布，市场数据日期仍是前一交易日 10 月 16 日。最新部署记录和运行证据已恢复一致。
 
 本次文档审计修正了旧 Worker/Pages 状态、M6b 归档状态、Niu Men 导入状态和跨仓库快照发布说明。Superpowers 计划与设计文件保留为历史记录，不改写当时的决策和执行步骤。
