@@ -15,6 +15,8 @@ pnpm install --frozen-lockfile
 
 ## 运行 Dashboard
 
+下面的示例包含美股标的。生成数据前，请先启动行情服务，并确保 `MARKET_DATA_SERVICE_URL` 指向可访问的服务地址；美股历史数据由该服务配置的 provider 提供。
+
 生成本地数据：
 
 ```bash

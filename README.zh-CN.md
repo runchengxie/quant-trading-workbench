@@ -88,9 +88,9 @@ uv run python scripts/package_share.py --output /tmp/quant-trading-workbench-sha
 ## 当前状态
 
 - M0 至 M4：已完成，包含一次真实 R-Breaker Tushare 快照发布
-- M5：代码和 yfinance 历史回退已完成；真实 Redis、provider 和部署环境故障验证仍待执行
-- M6：shadow runtime 和安全检查已完成；生产切换、连续运行观察仍待真实运行证据
-- M6b：两个旧仓库已声明统一维护主线；freeze、调用方审计和 archive 仍是外部运维事项
+- M5：代码和 yfinance 历史回退已完成。Redis 7 CI 已覆盖实际读写、单调报价更新、心跳、Pub/Sub 和 collector 写入；生产环境故障恢复与部署 readiness 检查仍待执行
+- M6：authoritative 切换已完成，部署 smoke 检查通过，工作日定时发布已启用。证据和回滚边界见[运行时切换手册](docs/operations/runtime-cutover.md)
+- M6b 已完成：两个旧仓库经过冻结和调用方审计后已归档，旧 Dashboard Worker 路由已关闭。历史 GitHub Pages 页面按用户选择继续公开
 
 详细状态以 [`docs/roadmap/README.md`](docs/roadmap/README.md) 为准。
 

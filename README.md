@@ -86,8 +86,8 @@ To show US instruments on the same page, generate a snapshot with explicit US ti
 ## Current status
 
 - M0 through M4 are complete, including one real R-Breaker Tushare snapshot publication.
-- M5 code and the yfinance historical fallback are complete. Real Redis, provider, and deployment-failure validation remains pending.
-- M6 shadow runtime and safety checks are complete. Production cutover and continuous runtime observation still require real execution evidence.
-- M6b declares the two legacy repositories as a unified maintenance line. Freeze, caller audit, and archive remain operational tasks.
+- M5 code and the yfinance historical fallback are complete. Redis 7 CI covers integration reads/writes, monotonic quote updates, heartbeats, Pub/Sub, and collector writes; production failure recovery and deployment-readiness checks remain pending.
+- M6 authoritative cutover completed with a successful deployment smoke check, and the weekday schedule is active. See the [runtime cutover runbook](docs/operations/runtime-cutover.md) for the evidence and rollback boundary.
+- M6b is complete: both legacy repositories are frozen and archived after caller audits, and the old Dashboard Worker routes are disabled. The historical GitHub Pages site remains public by choice.
 
 See [`docs/roadmap/README.md`](docs/roadmap/README.md) for the detailed status. This project supports strategy research and engineering validation. Historical data and backtest results do not imply future returns.
