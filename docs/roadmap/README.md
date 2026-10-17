@@ -15,7 +15,7 @@
 | M4 | 研究快照自动发布 | 已完成 | Niu Men publisher 与 R-Breaker artifact→generator→独立 snapshot PR 链路均已进入 `main`；R-Breaker 已完成一次真实 Tushare publication |
 | M5 | 实时行情服务 | 基础 Redis 集成已验证，故障恢复与部署验证待执行 | Redis 7 CI 已验证实际读写、旧报价拒写、心跳、Pub/Sub 和同步 collector 写入；Redis/provider 断线恢复、WebSocket 重连、readiness 和静态 fallback 故障验证仍未执行 |
 | M6 | runtime cutover | 已完成 | 手动 authoritative run #38917305897 在 SHA `601819b9c574010da62ec626b427f230734a13c0` 上通过；Pages 与 Cloudflare Worker 均返回非空数据，`generatedAt` 为 2026-10-16。工作日 schedule 已设为 authoritative；本封闭实验不要求五天观察 |
-| M6b | legacy freeze / retirement | 外部调用方审计基本完成，归档决定待定 | 两个旧仓库的常规定时/推送入口已冻结。GitHub 代码搜索、本机 cron、落盘/已加载 systemd 单元和仓库 self-hosted runner 均未发现实际调用方。旧 `wu-t0` Worker 的数据停在 2026-08-28；当前 Worker 数据为 2026-10-16。Workbench 中指向旧 Niu Men 的默认 artifact 仓库已移除，来源需由操作者显式选择 |
+| M6b | legacy freeze / retirement | 已完成 | 两个旧仓库已冻结并归档；GitHub 代码搜索、本机 cron、落盘/已加载 systemd 单元和仓库 self-hosted runner 均未发现实际调用方。旧 `wu-t0` Worker 的 Workers 与预览入口已关闭；旧 GitHub Pages 页面按用户选择继续公开。新的 authoritative Worker 保持启用 |
 
 ## 已完成能力
 
@@ -110,21 +110,9 @@ R-Breaker 已完成一次真实 Tushare publication，当前发布链路包括�
 
 手动 authoritative run #38917305897 已通过 candidate generation、validation、build、Cloudflare deploy 和 smoke；Pages 与 Worker 均提供非空数据，数据日期与候选一致。工作日 schedule 已切换为 authoritative。实验是封闭环境中的 Dashboard 快照实验，不要求连续五天观察，也不构成投资建议。完整记录见 [运行切换手册](../operations/runtime-cutover.md)。
 
-### M6b：legacy retirement
+### M6b：legacy retirement 已完成
 
-维护权声明、freeze 与 archive 是三个不同阶段。维护权声明已在两个旧仓库 README 完成，freeze 已合并，M6 authoritative cutover 也已完成。GitHub-visible 调用审计、本机 cron 和 systemd 运行态均未发现调用方。归档前仍须决定是否关闭旧 Worker，以及是否放弃旧 workflow 回滚能力。
-
-freeze 后旧仓库成为 rollback mirror；真正 archive 还需要：
-
-- Dashboard/Niu Men 冻结后的 no-write 状态已通过 GitHub Actions 记录核对；
-- GitHub-visible caller audit 未发现旧仓库的实际代码调用方；
-- cron、落盘 systemd 配置和已加载的 systemd 用户单元均未发现引用；
-- `wu-t0-trading-dashboard` 的 Cloudflare Worker 仍公开响应，但 `data.json` 停留在 2026-08-28；需决定是否关闭该旧站点及回滚能力；
-- Workbench 研究快照 workflow 不再默认使用旧 Niu Men 仓库；实际 artifact 来源由操作者显式指定；
-- rollback SHA 和 procedure 可验证；
-- repository setting 实际变成 archived 后才能记录 `archived`。
-
-在这些条件发生前，文档必须保持 `not-yet-run`、`in-progress` 或具体阻塞原因，不提前写成完成。
+两个旧仓库已于 2026-10-17 归档，旧 Dashboard Worker 的 `workers.dev` 与预览入口已在 Cloudflare 关闭并读回确认。旧 GitHub Pages 页面按用户选择保留公开；authoritative Worker 仍启用。调用方审计、合并记录与回滚边界见[退役记录](../operations/legacy-retirement.md)。归档会使旧仓库中的手动回滚 workflow 不再可运行。
 
 ## UI 设计改造
 

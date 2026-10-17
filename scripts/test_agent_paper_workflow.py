@@ -33,7 +33,24 @@ def test_agent_workflow_handles_dispatch_input_without_shell_interpolation() -> 
 def test_agent_workflow_does_not_reset_state_after_configured_fetch_failure() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     assert 'if [ -n "$CLOUDFLARE_PUBLIC_URL" ]; then' in text
+    assert 'echo "Unable to load the previous deployed Agent portfolio state" >&2' in text
     assert "Unable to load the previous deployed Agent portfolio state" in text
+
+
+def test_agent_workflow_preserves_live_market_data_before_deploying_static_assets() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    preserve = text.split("      - name: Preserve deployed market data snapshot", 1)[1].split(
+        "      - name:", 1
+    )[0]
+
+    assert "id: market_snapshot" in text
+    assert "$CLOUDFLARE_PUBLIC_URL/data.json" in preserve
+    assert "apps/dashboard/web/public/data.json" in preserve
+    assert text.index("Preserve deployed market data snapshot") < text.index(
+        "Build Dashboard web"
+    )
+    assert "steps.market_snapshot.outputs.available == 'true'" in text
+    assert text.count("steps.market_snapshot.outputs.available == 'true'") >= 4
 
 
 def test_agent_workflow_does_not_contain_broker_credentials_or_order_calls() -> None:

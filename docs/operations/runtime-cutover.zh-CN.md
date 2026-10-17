@@ -6,7 +6,7 @@
 
 ## 当前职责与状态
 
-Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维护。工作日定时任务已切换为 `authoritative`，并由成功的手动运行完成验收；这个封闭实验不要求连续五天观察。旧 workflow 只用于回滚。实时行情服务的生产验收是独立事项，不是静态快照实验的前置条件。Niu Men 发布也使用 monorepo 路径，旧入口只用于回滚。
+Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维护。`Dashboard runtime report` 的工作日定时模式是 `authoritative`，负责更新 Cloudflare Worker 和 GitHub Pages。这个封闭实验不要求连续五天观察。旧仓库已归档，旧 workflow 不再是可用的回滚入口；实时行情服务的生产验收仍是独立事项，不是静态快照实验的前置条件。Niu Men 发布也由 monorepo 维护。
 
 ## 固定回滚提交
 
@@ -14,12 +14,12 @@ Dashboard 源码、构建配置和静态 `data.json` fallback 由 monorepo 维�
 
 | 仓库 | 最后已知可用实现 SHA | 状态 |
 | --- | --- | --- |
-| `runchengxie/wu-t0-trading-dashboard` | `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e` | 冻结已合并，保留回滚镜像 |
-| `runchengxie/niu-men-line-strategy` | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` | 冻结已合并，保留回滚镜像 |
+| `runchengxie/wu-t0-trading-dashboard` | `e03617a6d6922e2b3fec66a96f1ae3b51f66c38e` | 已冻结并归档；SHA 仅用于历史追溯 |
+| `runchengxie/niu-men-line-strategy` | `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` | 已冻结并归档；SHA 仅用于历史追溯 |
 
 ## 工作流
 
-切换前的旧 Dashboard 生产入口是 `.github/workflows/report.yml`，调度为 `0 1 * * 1-5`，当时允许正常写入。该入口现在只允许手动回滚，并要求显式确认。旧本地检出不再是正常开发依赖，远端仍保留回滚镜像。
+切换前的旧 Dashboard 生产入口是 `.github/workflows/report.yml`，调度为 `0 1 * * 1-5`，当时允许正常写入。旧仓库现在已归档，历史手动回滚 workflow 无法触发，旧 Worker 入口也已关闭。上述 SHA 只用于追溯，不是当前部署方式。
 
 当前 monorepo 使用：
 
@@ -62,20 +62,20 @@ manual modes: shadow | authoritative
 
 ## 切换后
 
-本实验不要求连续观察五个交易日。检查第一次后续定时运行是否通过相同的运行时安全验证；若失败则回滚到 shadow。研究发布和实时行情服务的验收是独立事项。
+本实验不要求连续观察五个交易日。截至 2026-10-17，最近一次成功 authoritative 部署是手动运行 [#38917305897](https://github.com/runchengxie/quant-trading-workbench/actions/runs/38917305897)，部署 smoke 通过，服务的非空数据日期为 2026-10-16。10 月 17 日是周六，当天不应有工作日行情运行；下一次定时运行是 10 月 19 日周一。当前审计环境的网络代理阻止了对公开地址的直连，因此最新直接响应证据仍是 10 月 16 日部署 smoke。研究发布和实时行情服务的验收是独立事项。
 
 ## 回滚条件与步骤
 
 遇到以下情况应评估回滚：连续 2 个交易日运行失败且当天无法修复；候选数据为空或落后于最近审核日期；部署或 smoke 失败导致生产不可用；实时模式故障同时破坏静态 fallback；研究发布无法更新且无法安全继续展示上一有效快照。
 
-1. 撤销调度激活 PR，使定时模式回到 `shadow`。
-2. 使用旧 Dashboard 手动回滚 workflow，确认值必须为 `legacy-dashboard-rollback`。
-3. 必要时检出上表固定的 Dashboard SHA。
-4. 研究发布单独使用审核后的 Niu Men 回滚路径，必要时检出上表 Niu Men SHA。
+1. 撤销调度激活 PR #41，停止后续生产发布并让定时运行回到 `shadow`。
+2. 如果最新 Cloudflare Worker 部署导致回归，在 monorepo 根目录运行 `pnpm dlx wrangler@4 rollback --config apps/dashboard/wrangler.jsonc`，确认 Wrangler 选择的上一版本后再执行。该命令会用旧 Worker 版本创建新的部署，详见 [Cloudflare Wrangler rollback](https://developers.cloudflare.com/workers/wrangler/commands/workers/#rollback)。
+3. 用 `apps/dashboard/scripts/check_deployment.py` 验证恢复后的 Worker，并检查保留的运行 artifact。如果上一版本不是所需快照，应通过 monorepo PR 恢复审核过的静态快照，再按 monorepo workflow 发布。
+4. 研究快照单独回滚：通过 monorepo PR 恢复之前审核过的 `apps/dashboard/web/public/research.json`，再校验并部署。
 5. 保留失败 artifact 与运行 URL，记录事故后再继续实验。
 
-Dashboard 回滚不自动将研究发布权转回旧 Niu Men 仓库。
+已归档的旧仓库和它们的手动 workflow 不属于当前回滚路径。Dashboard runtime 回滚不会改变研究快照的维护权。
 
 ## M6b 退役边界
 
-此前引用的 #19 和 #21 实际是 PR，不是 M6/M6b 跟踪 issue（#19 已关闭，#21 已合并）。M6 runtime cutover 已完成。M6b 退役还需决定是否关闭旧 Worker 和放弃旧 workflow 回滚能力；GitHub、本机 cron 与 systemd 调用方审计未发现实际调用。详见[退役说明](legacy-retirement.md)。
+此前引用的 #19 和 #21 实际是 PR，不是 M6/M6b 跟踪 issue（#19 已关闭，#21 已合并）。M6 runtime cutover 和 M6b 退役均已完成：两个旧仓库已归档，旧 Dashboard Worker 入口已关闭，GitHub、本机 cron、systemd 和仓库 self-hosted runner 调用方审计均未发现活跃调用。旧 GitHub Pages 页面按用户选择继续公开。详见[退役说明](legacy-retirement.md)。

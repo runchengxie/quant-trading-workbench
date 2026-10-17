@@ -39,6 +39,33 @@ def test_dashboard_report_only_deploys_to_github_pages_in_authoritative_mode() -
     assert "if: ${{ steps.mode.outputs.mode == 'authoritative' }}" in deploy_step
 
 
+def test_agent_portfolio_deploy_preserves_live_market_snapshot() -> None:
+    text = (_root() / ".github/workflows/agent-paper-portfolio.yml").read_text(
+        encoding="utf-8"
+    )
+    preserve = text.split("      - name: Preserve deployed market data snapshot", 1)[1].split(
+        "      - name:", 1
+    )[0]
+    upload = text.split("      - name: Upload Dashboard to GitHub Pages", 1)[1].split(
+        "      - name:", 1
+    )[0]
+    pages_deploy = text.split("      - name: Deploy Dashboard to GitHub Pages", 1)[1].split(
+        "      - name:", 1
+    )[0]
+    worker_deploy = text.split("      - name: Deploy paper portfolio Dashboard", 1)[1]
+
+    assert "id: market_snapshot" in text
+    assert "$CLOUDFLARE_PUBLIC_URL/data.json" in preserve
+    assert "apps/dashboard/web/public/data.json" in preserve
+    assert text.index("Preserve deployed market data snapshot") < text.index(
+        "Build Dashboard web"
+    )
+    condition = "steps.market_snapshot.outputs.available == 'true'"
+    assert condition in upload
+    assert condition in pages_deploy
+    assert condition in worker_deploy
+
+
 def test_shadow_path_has_no_repository_write_permission() -> None:
     text = (_root() / ".github/workflows/dashboard-report.yml").read_text(encoding="utf-8")
 

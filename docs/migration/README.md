@@ -27,7 +27,7 @@ Trading Dashboard 采用分阶段迁移方式，每个阶段都应通过独立 P
 - Dashboard 已导入并由 monorepo 维护、测试和部署
 - Niu Men 已从源提交 `1be7f725772fa824ce34e2bb833867cb4c3e9fcb` 完成保留历史的首批导入：策略源码、脚本、测试、schema、pyproject 和批准的文档已进入 `packages/niu-men-line-strategy/`
 - 导入历史经过过滤审计，`artifacts/`、研究结果文档、源 CI、源 `uv.lock` 和敏感文件不在新增历史中
-- runtime authority 仍在旧仓库；旧 Niu Men 仓库在 cutover 前继续可独立运行
+- Dashboard 与 Niu Men 的 runtime 和快照发布 authority 已切换到 monorepo；两个源仓库已冻结并归档
 - 当前仓库没有 Git submodule 或 gitlink
 
 首次导入的精确边界和审计记录见：
@@ -85,18 +85,18 @@ Dashboard 当前使用 `src/trading_research/` 包结构。R-Breaker 的历史�
 - producer 与 consumer 的共享契约测试
 - 稳定的研究快照发布流程
 - Dashboard 数据生成、前端构建、部署和部署后检查
-- 明确旧仓库何时转为兼容镜像或归档
+- 完成旧仓库维护权转移、冻结与归档
 
-当前 monorepo 已经可以从本仓库构建和部署 Dashboard，根级 Actions 按仓库配额策略保持手动触发。Niu Men 源码和共享契约已经进入 monorepo，生产运行时和快照发布仍等待 M6 cutover。
+当前 monorepo 已经可以生成、校验并部署 Dashboard 快照。`Dashboard runtime report` 按工作日定时运行并部署到 authoritative Worker 与 GitHub Pages；研究 artifact 发布和其他部署 workflow 仍按各自流程手动触发。Niu Men 生产运行和快照发布已切换到 monorepo，详见[运行切换手册](../operations/runtime-cutover.md)。
 
 ## 当前权威边界
 
 截至当前状态：
 
 - Dashboard 代码、测试、Web 构建和 Workers 部署由本 monorepo 维护
-- Niu Men 研究代码已通过 M1 导入进入本仓库，但生产运行和快照发布仍在旧 `niu-men-line-strategy` 仓库执行，直到 runtime cutover 完成
+- Niu Men 研究代码、producer 和快照发布流程由本仓库维护；旧 `niu-men-line-strategy` 仓库已归档，只保留历史回溯资料
 - `research-workspace`、`market-data-platform`、`etf-minute-fetcher` 继续作为外部基础设施，当前仓库没有 Git submodule
-- monorepo 还没有完成整个研究平台的一次性运行时切换
+- Dashboard 快照实验的 runtime cutover 已完成；M5 实时行情服务仍有独立的真实环境故障恢复和部署验收
 
 实时行情的现状和建设路线见 [行情与图表导出能力](../capabilities/market-data-and-chart-export.md)。图表 PNG 导出和行情服务代码已经实现，Redis runtime 和生产验证仍在 M5。
 
@@ -104,7 +104,7 @@ Dashboard 当前使用 `src/trading_research/` 包结构。R-Breaker 的历史�
 
 PR #7 已于 2026 年 8 月 26 日合并到 `main`，合并提交为 `7bd3740`。本次维护更新了 Dashboard 的 Python 锁文件，清除了 `pip-audit` 报告的已知漏洞，补充了静态资产和部署检查，完善了前端测试与构建流程，并加入了 PNG 图表导出。
 
-当前 Python 依赖审计结果为 0 个已知漏洞。GitHub Actions 仍只允许通过 `workflow_dispatch` 手动触发，原因是仓库需要控制 Actions 配额。
+该段记录 PR #7 合并时的依赖审计和验证状态。当前 workflow 的触发方式因任务而异：Dashboard runtime report 按工作日调度，研究发布及其他部署流程按需手动触发；详见运行切换手册和各 workflow 定义。
 
 这个边界比简单写成 monorepo 是或不是唯一 source of truth 更准确，因为不同组件目前处在不同迁移阶段。
 

@@ -2,9 +2,7 @@
 
 ## 状态
 
-Niu Men M1 已在本 corrective 分支完成历史保留导入：源提交、路径映射、排除边界、回滚点和验证证据见下文。等待独立 PR 审查合入。
-
-在 PR 合入 `main` 并完成审查前，不宣称 Niu Men 已进入 monorepo runtime；生产运行和快照发布仍在旧仓库执行，直到 runtime cutover 完成。
+Niu Men M1 历史保留导入已合入 `main`，源码、测试和快照 producer 由 monorepo 维护。Dashboard runtime cutover 已完成；旧源仓库此前已冻结，并于 2026-10-17 归档。下文保留首次导入的源 commit、路径映射、排除边界和回滚点，作为历史审计记录。
 
 ## 源与回滚点
 
@@ -15,7 +13,7 @@ Niu Men M1 已在本 corrective 分支完成历史保留导入：源提交、路
 | 目标前缀 | `packages/niu-men-line-strategy/` |
 | 导入方式 | 从精确源 commit 构造历史过滤仓库，再通过 unrelated-history merge 合入独立迁移分支 |
 
-该源 commit 当前对应 Niu Men 已稳定 `niu_men.research_snapshot.v2` 合同后的 `main` 基线，是本次首次导入的 rollback point。
+该源 commit 对应首次导入时 Niu Men 已稳定 `niu_men.research_snapshot.v2` 合同后的 `main` 基线，是本次导入的历史 rollback point。源仓库后来被冻结并归档。
 
 ## 允许路径映射
 
@@ -69,7 +67,7 @@ docs/strategy-spec.md                 -> packages/niu-men-line-strategy/docs/str
 - `niu_men.research_snapshot.v2` wire version
 - provenance 字段与 `quality.status` / warning 语义
 - 当前外部 `market-data-platform`、`etf-minute-fetcher`、`research-workspace` 边界
-- 旧 Niu Men 仓库在 runtime cutover 之前继续可独立运行
+- 当时旧 Niu Men 仓库在 runtime cutover 之前继续可独立运行
 
 M1 不抽取 `packages/research-core`，不创建根 uv workspace，也不把旧仓库改成只读镜像。以上工作分别属于后续迁移阶段。
 
@@ -132,7 +130,7 @@ uv run --locked --extra dev pip-audit --skip-editable
 docs/superpowers/plans/2026-08-26-m1-niu-men-import.md
 ```
 
-## 当前执行记录
+## M1 首次导入执行记录
 
 已经完成：
 
