@@ -103,3 +103,7 @@ jobs:
       - name: Test Dashboard Python package
         working-directory: apps/dashboard
         run: uv run --locked --extra backtest pytest -q
+
+      - name: Check Dashboard Python types
+        working-directory: apps/dashboard
+        run: uv run --locked --extra backtest --extra alpaca ty check src

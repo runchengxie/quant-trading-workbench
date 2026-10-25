@@ -82,4 +82,4 @@ show_missing = true
 skip_covered = false
 
 [dependency-groups]
-dev = ["pytest>=9.0.3", "pytest-cov>=5.0"]
+dev = ["pytest>=9.0.3", "pytest-cov>=5.0", "ty==0.0.74"]

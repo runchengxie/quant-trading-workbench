@@ -2875,6 +2875,7 @@ test = [
 dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "ty" },
 ]
 
 [package.metadata]
@@ -2903,6 +2904,7 @@ provides-extras = ["test", "backtest", "alpaca"]
 dev = [
     { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest-cov", specifier = ">=5.0" },
+    { name = "ty", specifier = "==0.0.74" },
 ]
 
 [[package]]
