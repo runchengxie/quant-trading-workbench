@@ -1,5 +1,20 @@
 # 维护性审查记录
 
+## 2026 年 10 月 26 日 Dashboard 类型工具锁定
+
+Dashboard 的开发依赖将 `ty` 固定为 `0.0.74`，由 workspace `uv.lock` 管理。
+PR 和完整质量 workflow 均使用该锁定版本，避免 `--with ty` 在锁文件之外解析工具。
+本地在 `apps/dashboard` 目录运行相同命令：
+
+```bash
+uv run --locked --extra backtest --extra alpaca ty check src
+```
+
+同一份源码和业务依赖下，`ty 0.0.63` 曾报告五项诊断，涉及字典值窄化、
+`Timestamp` 返回值、JSON 标的键和可选的 `backtrader` 导入；`0.0.74` 检查通过。
+运行时已拒绝缺失或无时区的时间戳，JSON 输入中的标的键也是字符串。
+本次保留现有业务实现和检查范围，通过锁定已验证工具消除版本差异。
+
 ## 2026 年 9 月 4 日 runtime report 修复
 
 定时 `Dashboard runtime report` 在 provider 只返回部分标的时，原先会先保留可用候选，随后因为候选缺少基线标的而失败。现在校验脚本接收 `--mode shadow|authoritative`。`shadow` 模式允许记录缺失标的并继续发布候选，`authoritative` 模式仍会拒绝不完整候选。两种模式都会拒绝生成日期回退、交易日回退和空候选。
