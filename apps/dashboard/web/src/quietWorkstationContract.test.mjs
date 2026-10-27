@@ -16,10 +16,10 @@ test('quiet workstation removes SaaS decoration and legacy dashboard identity', 
   assert.doesNotMatch(editorial, /background-image:\s*linear-gradient/);
   assert.doesNotMatch(app, /TRADING DASHBOARD|Trading Dashboard/);
   assert.match(app, /QUANT TRADING WORKBENCH/);
-  assert.match(app, /Monitor · 盘前概览/);
-  assert.match(app, /Workspace · 日内工作台/);
-  assert.match(app, /Research · 策略研究/);
-  assert.match(app, /Agent · 纸面交易/);
+  assert.match(app, /readerCopy.nav.overview/);
+  assert.match(app, /readerCopy.nav.workspace/);
+  assert.match(app, /readerCopy.nav.research/);
+  assert.match(app, /readerCopy.nav.agent/);
   assert.match(index, /<title>Quant Trading Workbench<\/title>/);
   assert.doesNotMatch(button, /bg-blue-|ring-blue-|slate-300/);
 });

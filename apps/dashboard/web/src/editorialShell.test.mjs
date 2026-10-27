@@ -15,7 +15,7 @@ test('Dashboard loads the editorial research shell after the base stylesheet', (
 test('Workbench opens on Intel and retains existing Monitor and Agent navigation', () => {
   const source = readFileSync(new URL('./App.tsx', import.meta.url), 'utf8');
   assert.match(source, /useState<ViewId>\('intel'\)/);
-  assert.match(source, /label: 'Intel · 每日情报'/);
-  assert.match(source, /label: 'Agent · 纸面交易'/);
-  assert.match(source, /label: 'Monitor · 盘前概览'/);
+  assert.match(source, /label: readerCopy.nav.intel/);
+  assert.match(source, /label: readerCopy.nav.agent/);
+  assert.match(source, /label: readerCopy.nav.overview/);
 });

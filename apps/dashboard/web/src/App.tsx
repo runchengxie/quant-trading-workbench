@@ -1,3 +1,4 @@
+import { readerCopy } from './readerPresentation.ts';
 import { useEffect, useState } from 'react';
 import { loadDashboard, loadStrategySnapshot, type StrategyLoadResult } from './api.ts';
 import { applyLiveQuote, buildLiveStreamUrl, isUsInstrument } from './liveQuote.ts';
@@ -41,11 +42,11 @@ const MARKET_FILTERS: { id: MarketFilter; label: string }[] = [
 ];
 
 const NAV_ITEMS: { id: ViewId; label: string }[] = [
-  { id: 'intel', label: 'Intel · 每日情报' },
-  { id: 'overview', label: 'Monitor · 盘前概览' },
-  { id: 'workspace', label: 'Workspace · 日内工作台' },
-  { id: 'research', label: 'Research · 策略研究' },
-  { id: 'agent', label: 'Agent · 纸面交易' },
+  { id: 'intel', label: readerCopy.nav.intel },
+  { id: 'overview', label: readerCopy.nav.overview },
+  { id: 'workspace', label: readerCopy.nav.workspace },
+  { id: 'research', label: readerCopy.nav.research },
+  { id: 'agent', label: readerCopy.nav.agent },
 ];
 
 function isLiveQuote(value: unknown): value is LiveQuote {

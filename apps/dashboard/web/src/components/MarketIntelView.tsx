@@ -1,3 +1,4 @@
+import { readerCopy, formatSourceTime } from '../readerPresentation.ts';
 import { useEffect, useMemo, useState } from 'react';
 import type { DashboardData } from '../types.ts';
 import type { ContextualResearchSnapshot } from '../contextualResearch.ts';
@@ -71,7 +72,7 @@ function marketSource(dashboard: DashboardData, stateProbe: StateProbeSnapshot |
     : rawStateProbe === undefined || rawStateProbe === null ? 'missing' : 'invalid';
   const stateText = stateProbe
     ? `当前状态：${stateProbe.current.state} · 条件${stateProbe.current.condition ? '命中' : '未命中'}`
-    : status === 'missing' ? '当前没有已发布的 market state probe。' : 'market state probe 无法通过校验。';
+    : status === 'missing' ? readerCopy.missingMarket : readerCopy.invalidMarket;
   return {
     id: 'market-state',
     label: '市场状态',
@@ -90,7 +91,7 @@ function contextualSource(snapshot: ContextualResearchSnapshot | null, raw: unkn
   const status: IntelSourceStatus = snapshot ? 'available' : raw === undefined || raw === null ? 'missing' : 'invalid';
   return {
     id: 'contextual-research',
-    label: 'Contextual Research',
+    label: readerCopy.contextTitle,
     kind: 'context',
     status,
     dataDate: snapshot?.dataDate ?? null,
@@ -100,7 +101,7 @@ function contextualSource(snapshot: ContextualResearchSnapshot | null, raw: unkn
     destination: 'workspace',
     detail: snapshot
       ? `${snapshot.coverage.evaluated}/${snapshot.coverage.requested} 个输入已评估 · ${snapshot.quality.status === 'pass' ? '质量检查通过' : '存在质量提示'}`
-      : status === 'missing' ? '当前快照不包含 contextual research。' : 'Contextual Research 无法通过校验。',
+      : status === 'missing' ? readerCopy.missingContext : readerCopy.invalidContext,
   };
 }
 
@@ -127,7 +128,7 @@ function strategySource(result: StrategyLoadResult): MarketIntelSource {
 function portfolioSource(definition: PortfolioDefinition, result: AgentPortfolioLoadResult | null): MarketIntelSource {
   const snapshot = result?.status === 'available' ? result.snapshot : null;
   const detail = snapshot
-    ? `${snapshot.positions.length} 个持仓 · 纸面组合累计收益 ${(snapshot.portfolio.totalReturn * 100).toFixed(2)}% · NAV ${snapshot.portfolio.nav.toFixed(4)}`
+    ? `${snapshot.positions.length} 个持仓 · 纸面组合累计收益 ${(snapshot.portfolio.totalReturn * 100).toFixed(2)}% · 净值 ${snapshot.portfolio.nav.toFixed(4)}`
     : result?.status === 'missing' ? '当前没有已发布的纸面组合快照。'
       : result?.status === 'invalid' ? '组合快照格式无效。'
         : result?.status === 'error' ? '组合快照加载失败。' : '组合快照加载中。';
@@ -151,7 +152,7 @@ function dailyNoteSource(result: MarketIntelDailyNoteResult): MarketIntelSource 
     : result.status === 'missing' ? '暂无可用每日短评。'
       : result.status === 'invalid' ? '短评或来源报告无法通过校验。'
         : result.status === 'error' ? '每日短评服务暂不可用。'
-          : '正在读取 market-intel-pages 短评。';
+          : readerCopy.loadingNote;
   return {
     id: 'daily-note',
     label: '每日资讯短评',
@@ -167,7 +168,7 @@ function dailyNoteSource(result: MarketIntelDailyNoteResult): MarketIntelSource 
 }
 
 function dateText(value: string | null): string {
-  return value ? value.replace('T', ' ') : '—';
+  return value || readerCopy.missingTime;
 }
 
 function SourceStatus({ status }: { status: IntelSourceStatus }) {
@@ -179,10 +180,10 @@ function SourceCard({ source, onNavigate }: {
   onNavigate: (view: Destination) => void;
 }) {
   const action = source.destination === 'external' ? null : {
-    overview: '查看 Monitor',
-    workspace: '查看 Workspace',
-    research: '查看 Research',
-    agent: '查看 Agent',
+    overview: readerCopy.actions.overview,
+    workspace: readerCopy.actions.workspace,
+    research: readerCopy.actions.research,
+    agent: readerCopy.actions.agent,
   }[source.destination];
   return (
     <article className="market-intel-source" data-source-id={source.id}>
@@ -193,10 +194,12 @@ function SourceCard({ source, onNavigate }: {
       <p className="market-intel-source-detail">{source.detail}</p>
       <dl className="market-intel-source-meta">
         <div><dt>数据日期</dt><dd>{dateText(source.dataDate)}</dd></div>
-        <div><dt>生成时间</dt><dd>{dateText(source.generatedAt)}</dd></div>
+        <div><dt>生成时间</dt><dd>{formatSourceTime(source.generatedAt)}</dd></div>
       </dl>
+      <details className="market-intel-technical"><summary>{readerCopy.technicalDetails}</summary>
       {source.schemaVersion && <code className="market-intel-schema">{source.schemaVersion}</code>}
       <code className="market-intel-path">{source.sourcePath}</code>
+      </details>
       {action && (
         <button type="button" className="market-intel-link" onClick={() => onNavigate(source.destination as Destination)}>
           {action} →
@@ -297,7 +300,7 @@ export default function MarketIntelView({
             <p className="market-intel-source-detail market-intel-note-text">{dailyNote.detail}</p>
             <dl className="market-intel-source-meta">
               <div><dt>短评日期</dt><dd>{dateText(dailyNote.dataDate)}</dd></div>
-              <div><dt>生成时间</dt><dd>{dateText(dailyNote.generatedAt)}</dd></div>
+              <div><dt>生成时间</dt><dd>{formatSourceTime(dailyNote.generatedAt)}</dd></div>
             </dl>
             {dailyNoteResult.status === 'available' && (
               <>
@@ -309,16 +312,16 @@ export default function MarketIntelView({
                 </a>
               </>
             )}
-            <code className="market-intel-path">{dailyNote.sourcePath}</code>
+            <details className="market-intel-technical"><summary>{readerCopy.technicalDetails}</summary><code className="market-intel-path">{dailyNote.sourcePath}</code></details>
           </article>
         </section>
       </div>
 
       <nav className="market-intel-actions" aria-label="查看 Workbench 分区">
-        <button type="button" onClick={() => onNavigate('overview')}>查看 Monitor</button>
-        <button type="button" onClick={() => onNavigate('workspace')}>查看 Workspace</button>
-        <button type="button" onClick={() => onNavigate('research')}>查看 Research</button>
-        <button type="button" onClick={() => onNavigate('agent')}>查看 Agent</button>
+        <button type="button" onClick={() => onNavigate('overview')}>{readerCopy.actions.overview}</button>
+        <button type="button" onClick={() => onNavigate('workspace')}>{readerCopy.actions.workspace}</button>
+        <button type="button" onClick={() => onNavigate('research')}>{readerCopy.actions.research}</button>
+        <button type="button" onClick={() => onNavigate('agent')}>{readerCopy.actions.agent}</button>
       </nav>
     </section>
   );
