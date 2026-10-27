@@ -8,7 +8,7 @@ import pytest
 
 def load_restore():
     spec = importlib.util.spec_from_file_location(
-        "restore", Path("apps/dashboard/scripts/restore_published_snapshots.py")
+        "restore", Path(__file__).resolve().parents[1] / "scripts/restore_published_snapshots.py"
     )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
