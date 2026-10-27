@@ -3,6 +3,11 @@ name: Deploy Dashboard
 on:
   workflow_dispatch:
     inputs:
+      published_run_id:
+        description: "Reuse unchanged JSON from a successful main Pages run for a UI-only release"
+        required: false
+        default: ""
+        type: string
       research_run_id:
         description: "Research workflow run ID that contains rbreaker-input-v1"
         required: false
@@ -30,6 +35,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -63,6 +69,39 @@ jobs:
 
       - name: Install Dashboard package
         run: uv sync --locked --package trading-research-dashboard-app
+
+      - name: Verify published snapshot source
+        if: ${{ inputs.published_run_id != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN: ${{ inputs.published_run_id }}
+          ENABLE_RBREAKER: ${{ inputs.enable_rbreaker }}
+          CONTEXTUAL_HISTORY: ${{ inputs.contextual_history }}
+          STRATEGY_OUTCOMES: ${{ inputs.strategy_outcomes }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN" =~ ^[0-9]+$ ]]
+          test "$ENABLE_RBREAKER" = false
+          test -z "$CONTEXTUAL_HISTORY$STRATEGY_OUTCOMES"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN" > "$RUNNER_TEMP/source-run.json"
+          jq -e --arg repo "$GITHUB_REPOSITORY" '.conclusion == "success" and .head_branch == "main" and .head_repository.full_name == $repo' "$RUNNER_TEMP/source-run.json"
+
+      - name: Download published Pages artifact
+        if: ${{ inputs.published_run_id != '' }}
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.published_run_id }}
+          path: ${{ runner.temp }}/published-pages
+
+      - name: Restore unchanged published JSON
+        if: ${{ inputs.published_run_id != '' }}
+        run: >-
+          python apps/dashboard/scripts/restore_published_snapshots.py
+          "${{ runner.temp }}/published-pages/artifact.tar" apps/dashboard/web/public
 
       - name: Validate R-Breaker dispatch inputs
         if: ${{ inputs.enable_rbreaker }}
@@ -105,6 +144,7 @@ jobs:
           --producer-run-id "${{ inputs.research_run_id }}"
 
       - name: Enrich contextual research
+        if: ${{ inputs.published_run_id == '' }}
         env:
           CONTEXTUAL_HISTORY: ${{ inputs.contextual_history }}
           STRATEGY_OUTCOMES: ${{ inputs.strategy_outcomes }}
@@ -128,7 +168,7 @@ jobs:
         if: ${{ inputs.enable_rbreaker == false }}
         run: |
           echo "### R-Breaker snapshot" >> "$GITHUB_STEP_SUMMARY"
-          echo "Status: skipped; using the checked-in static snapshot." >> "$GITHUB_STEP_SUMMARY"
+          echo "Status: skipped; using the selected published snapshots or the checked-in defaults." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Summarize R-Breaker generation
         if: ${{ inputs.enable_rbreaker }}

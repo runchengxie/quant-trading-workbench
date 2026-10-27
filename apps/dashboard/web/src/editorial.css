@@ -606,3 +606,20 @@ body .research-table th {
     margin-left: 0;
   }
 }
+
+/* Reader controls wrap instead of concealing destinations off-screen. */
+.market-intel-source-detail { font-size: 15px; line-height: 1.7; }
+.market-intel-source-meta dt, .market-intel-source-meta dd { font-size: 13px; }
+.market-intel-technical { font-size: 13px; color: var(--text-secondary); }
+.market-intel-technical summary { cursor: pointer; padding-block: 8px; }
+.market-intel-technical code { overflow-wrap: anywhere; }
+.market-intel-header .section-subtitle, .page-header .subtitle { font-size: 14px; }
+.section-nav-button { font-size: 14px; min-height: 44px; }
+@media (max-width: 900px) {
+  .section-nav { flex-wrap: wrap; overflow: visible; gap: 0 20px; }
+}
+@media (max-width: 560px) {
+  .section-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; }
+  .section-nav-button { white-space: normal; padding: 8px 2px; }
+  .market-intel-source-meta { grid-template-columns: 1fr; }
+}

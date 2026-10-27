@@ -58,15 +58,15 @@ test('one failed paper portfolio does not hide the other portfolio or other Inte
 test('Intel links back to the existing Monitor, Research and Agent sections', async ({ page }) => {
   await openIntel(page);
 
-  await page.getByRole('button', { name: '查看 Monitor', exact: true }).click();
+  await page.getByRole('button', { name: '查看行情概览', exact: true }).click();
   await expect(page.getByRole('heading', { name: '标的概览' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Intel · 每日情报' }).click();
-  await page.getByRole('button', { name: '查看 Research', exact: true }).click();
+  await page.getByRole('button', { name: '每日情报' }).click();
+  await page.getByRole('button', { name: '查看策略研究', exact: true }).click();
   await expect(page.getByRole('heading', { name: /牛门线全市场样本外研究/ })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Intel · 每日情报' }).click();
-  await page.getByRole('button', { name: '查看 Agent', exact: true }).click();
+  await page.getByRole('button', { name: '每日情报' }).click();
+  await page.getByRole('button', { name: '查看纸面交易', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Agent Portfolio' })).toBeVisible();
 });
 
@@ -78,4 +78,23 @@ test('Intel 在手机宽度下不会撑出横向滚动条', async ({ page }) => 
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+
+test('mobile readers can find every destination and expand technical source details', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openIntel(page);
+  const nav = page.locator('.section-nav');
+  await expect(nav.getByRole('button')).toHaveCount(5);
+  for (const button of await nav.getByRole('button').all()) {
+    const bounds = await button.boundingBox();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(390);
+  }
+  const card = page.locator('[data-source-id="market-data"]');
+  await expect(card.locator('.market-intel-path')).not.toBeVisible();
+  await card.getByText('数据来源与技术详情').click();
+  await expect(card.locator('.market-intel-path')).toBeVisible();
+  await expect(card.locator('.market-intel-path')).toHaveText('data.json');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
