@@ -15,9 +15,13 @@ pnpm install --frozen-lockfile
 
 ## 运行 Dashboard
 
-下面的示例包含美股标的。生成数据前，请先启动行情服务，并确保 `MARKET_DATA_SERVICE_URL` 指向可访问的服务地址；美股历史数据由该服务配置的 provider 提供。
+仓库内的 `apps/dashboard/web/public/data.json` 提供包含宝莱特和 TSLA 的静态演示，数据可能滞后于最新交易日。安装依赖后，在仓库根目录启动前端即可查看：
 
-生成本地数据：
+```bash
+pnpm --filter wu-t0-dashboard-web dev
+```
+
+需要重新生成数据时，在 Dashboard 目录执行以下命令。美股数据要求行情服务已经启动，`MARKET_DATA_SERVICE_URL` 指向可访问的服务地址：
 
 ```bash
 cd apps/dashboard
@@ -27,12 +31,7 @@ MARKET_DATA_SERVICE_URL=http://127.0.0.1:8000 \
   --json web/public/data.json
 ```
 
-启动前端：
-
-```bash
-cd ../..
-pnpm --filter wu-t0-dashboard-web dev
-```
+执行 `cd ../..` 返回仓库根目录后再运行前端命令。生成数据时省略 `--output-root`，使用配置的外部数据根目录。
 
 ## 运行测试
 
@@ -50,7 +49,6 @@ pnpm --filter wu-t0-dashboard-web build
 
 这些是局部检查。`.github/workflows/foundation.yml` 定义手动执行的完整检查，包括包检查、Dashboard 和 Niu Men 覆盖率门槛、类型检查、依赖审计及边界检查。`.github/workflows/pr-ci.yml` 定义按路径筛选的 Dashboard PR 检查。文档修改不会自动触发手动 foundation workflow。
 
-生成数据时省略 `--output-root`，使用配置的外部数据根目录。
 
 ## 需要密钥的功能
 
@@ -85,7 +83,7 @@ Python 行情服务。需要实时美股行情时，可以在构建环境配置�
 如果需要把项目交给朋友本地运行，使用根目录的安全打包脚本：
 
 ```bash
-uv run python scripts/package_share.py --output /tmp/quant-trading-workbench-share.zip
+uv run --locked python scripts/package_share.py --output /tmp/quant-trading-workbench-share.zip
 ```
 
 压缩包包含完整项目源码、GitHub Actions workflow、Dashboard 静态 `data.json`/研究快照、`.env.example` 和 `SHARE-MANIFEST.json`，不带 `.env`、真实 Alpaca/Tushare key、原始缓存、`node_modules` 或构建产物。`market-data-platform` 和 `etf-minute-fetcher` 的原始数据不进入压缩包，manifest 会记录外部数据源及其环境变量。接收方复制 `.env.example` 为 `.env` 后，在自己的环境中填写 key；不要把真实 key 放进压缩包或前端 `VITE_*` 变量。
