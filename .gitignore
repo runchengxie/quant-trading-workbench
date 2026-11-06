@@ -13,7 +13,11 @@ test-results/
 !.env.example
 .wrangler/
 .worktrees/
-data/
+# Runtime assets must not hide source packages named data.
+/data/
+/apps/dashboard/data/
+/packages/niu-men-line-strategy/data/
+**/data/raw/
 artifacts/raw/
 artifacts/oos/
 artifacts/charts/
