@@ -5,6 +5,7 @@ import os
 import re
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import cast
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from zoneinfo import ZoneInfo
@@ -110,7 +111,7 @@ def _fetch_us_bars_yfinance(
 def _bars_to_daily_frame(bars: list[dict[str, object]]) -> pd.DataFrame:
     rows = [
         {
-            "date": pd.to_datetime(bar["timestamp"], utc=True).strftime("%Y-%m-%d"),
+            "date": pd.to_datetime(cast(str, bar["timestamp"]), utc=True).strftime("%Y-%m-%d"),
             "open": bar["open"],
             "close": bar["close"],
             "high": bar["high"],
@@ -125,7 +126,7 @@ def _bars_to_daily_frame(bars: list[dict[str, object]]) -> pd.DataFrame:
 def _bars_to_intraday_frame(bars: list[dict[str, object]]) -> pd.DataFrame:
     rows = [
         {
-            "time": pd.to_datetime(bar["timestamp"], utc=True)
+            "time": pd.to_datetime(cast(str, bar["timestamp"]), utc=True)
             .tz_convert("America/New_York")
             .strftime("%H:%M:%S"),
             "price": bar["close"],
