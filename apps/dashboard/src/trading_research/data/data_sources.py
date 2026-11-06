@@ -16,6 +16,7 @@ import datetime as _dt
 import os
 import re
 from pathlib import Path
+from typing import TypeGuard
 
 import akshare as ak
 import pandas as pd
@@ -98,7 +99,7 @@ def get_etf_minute_data_root() -> Path:
     return Path(raw).expanduser()
 
 
-def _nonempty(df) -> bool:
+def _nonempty(df: object) -> TypeGuard[pd.DataFrame]:
     return df is not None and isinstance(df, pd.DataFrame) and not df.empty
 
 

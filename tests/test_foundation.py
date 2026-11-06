@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.check_foundation import validate_foundation
+from scripts.check_foundation import is_ignored_path, validate_foundation
 
 
 def test_current_repository_has_a_complete_foundation() -> None:
@@ -267,3 +267,23 @@ def test_tracked_gitlink_is_reported_as_a_m1_boundary_violation(tmp_path: Path) 
     errors = validate_foundation(tmp_path)
 
     assert f"gitlink is not allowed during M1: {relative_path}" in errors
+
+
+@pytest.mark.parametrize(("relative_path", "ignored"), [
+    ("apps/dashboard/src/trading_research/data/__init__.py", False),
+    ("apps/dashboard/src/trading_research/data/cache.py", False),
+    ("apps/dashboard/src/trading_research/data/config.py", False),
+    ("apps/dashboard/src/trading_research/data/data_sources.py", False),
+    ("apps/dashboard/src/trading_research/data/market_compat.py", False),
+    ("apps/dashboard/src/trading_research/data/provider_policy.py", False),
+    ("data/snapshot.parquet", True),
+    ("apps/dashboard/data/cache.csv", True),
+    ("packages/niu-men-line-strategy/data/panel.parquet", True),
+    ("apps/dashboard/web/data/raw/vendor.csv", True),
+    ("packages/research-core/data/raw/vendor.csv", True),
+])
+def test_runtime_data_ignores_preserve_source_discovery(relative_path: str, ignored: bool) -> None:
+    root = Path(__file__).resolve().parents[1]
+
+    # Exercise real Git matching, including tracked paths that search/lint tools skip.
+    assert is_ignored_path(root, Path(relative_path)) is ignored
